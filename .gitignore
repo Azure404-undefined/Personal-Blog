@@ -1,0 +1,6 @@
+# Cloud functions
+cloudfunctions/*/node_modules/
+
+# Claude
+.claude/plans/
+.claude/memory/

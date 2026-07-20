@@ -1,0 +1,16 @@
+{
+  "$schema": "https://static.cloudbase.net/cli/cloudbaserc.schema.json",
+  "envId": "private-project-d8ficqljdf83631a",
+  "functionRoot": "./cloudfunctions",
+  "functions": [
+    {
+      "name": "blog-bff",
+      "type": "Event",
+      "handler": "index.main",
+      "timeout": 30,
+      "runtime": "Nodejs20.19",
+      "memorySize": 256,
+      "installDependency": true
+    }
+  ]
+}
