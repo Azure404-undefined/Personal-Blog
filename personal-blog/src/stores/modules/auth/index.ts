@@ -23,7 +23,12 @@ export const useAuthStore = defineStore("auth", () => {
             setLocalToken(response.access_token);
         } catch (error) {
             clearLocalToken();
-            ElMessage.error("登录失败，请检查用户名和密码。");
+            ElMessage({
+                message: "登录失败，请检查用户名和密码。",
+                type: "error",
+                duration: 3000,
+                placement: "top",
+            });
             throw error;
         }
     };
