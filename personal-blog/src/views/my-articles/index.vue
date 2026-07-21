@@ -1,15 +1,198 @@
 <script setup lang="ts">
-    defineOptions({
-        name: 'MyArticlesView'
-    })
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { getMyArticles, deleteArticle } from '@/services/api/articles';
+import { ElMessageBox, ElMessage } from 'element-plus';
+
+defineOptions({ name: 'MyArticlesView' });
+
+const router = useRouter();
+
+const loading = ref(true);
+const error = ref('');
+const articles = ref<API.Articles.Article[]>([]);
+const page = ref(1);
+const total = ref(0);
+const pageSize = 10;
+const deleting = ref<string | null>(null);
+
+const fetchArticles = async () => {
+  loading.value = true;
+  error.value = '';
+  try {
+    const res = await getMyArticles({ page: page.value, pageSize });
+    articles.value = res.records;
+    total.value = res.total;
+  } catch (e: any) {
+    error.value = e?.message || '加载失败';
+  } finally {
+    loading.value = false;
+  }
+};
+
+const onPageChange = (p: number) => {
+  page.value = p;
+  fetchArticles();
+};
+
+const fmtDate = (ts: number) => {
+  const d = new Date(ts);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+};
+
+const handleDelete = async (id: string) => {
+  try {
+    await ElMessageBox.confirm('确定要删除这篇文章吗？', '删除确认', {
+      confirmButtonText: '删除',
+      cancelButtonText: '取消',
+      type: 'warning',
+    });
+  } catch {
+    return;
+  }
+  deleting.value = id;
+  try {
+    await deleteArticle(id);
+    articles.value = articles.value.filter((a) => a._id !== id);
+    total.value--;
+  } catch (e: any) {
+    ElMessage.error(e?.message || '删除失败');
+  } finally {
+    deleting.value = null;
+  }
+};
+
+onMounted(fetchArticles);
 </script>
 
 <template>
-    <div>
-        我的文章
+  <div class="my-page">
+    <h1 class="page-title">我的文章</h1>
+
+    <!-- loading -->
+    <div v-if="loading" class="state-box">
+      <el-icon class="is-loading" :size="24"><Loading /></el-icon>
+      <span>加载中...</span>
     </div>
+
+    <!-- error -->
+    <div v-else-if="error" class="state-box">
+      <p class="state-text error-text">{{ error }}</p>
+      <el-button @click="fetchArticles">重试</el-button>
+    </div>
+
+    <!-- empty -->
+    <div v-else-if="!articles.length" class="state-box">
+      <p class="state-text">还没有文章</p>
+      <el-button type="primary" @click="router.push('/write')">写一篇</el-button>
+    </div>
+
+    <!-- list -->
+    <template v-else>
+      <div class="article-list">
+        <div v-for="item in articles" :key="item._id" class="article-row">
+          <div class="row-main" @click="router.push(`/articles/${item._id}`)">
+            <h3 class="row-title">{{ item.title }}</h3>
+            <time class="row-date">{{ fmtDate(item.updatedAt) }}</time>
+          </div>
+          <div class="row-actions">
+            <el-button size="small" @click="router.push(`/write?id=${item._id}`)">编辑</el-button>
+            <el-button
+              size="small"
+              type="danger"
+              :loading="deleting === item._id"
+              @click="handleDelete(item._id)"
+            >
+              删除
+            </el-button>
+          </div>
+        </div>
+      </div>
+
+      <div v-if="total > pageSize" class="pagination-wrap">
+        <el-pagination
+          background
+          layout="prev, pager, next"
+          :total="total"
+          :page-size="pageSize"
+          :current-page="page"
+          @current-change="onPageChange"
+        />
+      </div>
+    </template>
+  </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
+.my-page {
+  max-width: 800px;
+  margin: 0 auto;
+}
 
+.page-title {
+  margin: 0 0 24px;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.state-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 60px 0;
+  color: #909399;
+}
+.state-text {
+  margin: 0;
+  font-size: 14px;
+}
+.error-text {
+  color: #f56c6c;
+}
+
+.article-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.article-row {
+  display: flex;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid #ebeef5;
+}
+
+.row-main {
+  flex: 1;
+  cursor: pointer;
+  min-width: 0;
+}
+
+.row-title {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #303133;
+}
+
+.row-date {
+  font-size: 12px;
+  color: #c0c4cc;
+}
+
+.row-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-left: 16px;
+}
+
+.pagination-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
 </style>

@@ -44,10 +44,10 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-    // {
-    //   path: '/*',
-    //   redirect: '/',
-    // }
+    {
+      path: '/:pathMatch(.*)*',
+      redirect: '/',
+    }
   ],
 })
 
