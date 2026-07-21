@@ -5,7 +5,7 @@ import { ElMessage } from "element-plus";
 
 export const useAuthStore = defineStore("auth", () => {
     const token = ref(localStorage.getItem("token") || undefined);
-    const isLogin = computed(() => Boolean(token));
+    const isLogin = computed(() => Boolean(token.value));
 
     const setLocalToken = (newToken: string) => {
         localStorage.setItem("token", newToken);
