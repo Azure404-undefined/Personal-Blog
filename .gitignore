@@ -2,5 +2,5 @@
 cloudfunctions/*/node_modules/
 
 # Claude
-.claude/plans/
-.claude/memory/
+.claude/
+CLAUDE.md

@@ -29,6 +29,14 @@ const router = createRouter({
       },
     },
     {
+      path: '/articles/:id',
+      name: 'ArticleDetail',
+      component: () => import('@/views/article-detail/index.vue'),
+      meta: {
+        requiresAuth: false,
+      },
+    },
+    {
       path: '/my-articles',
       name: 'MyArticles',
       component: () => import('@/views/my-articles/index.vue'),

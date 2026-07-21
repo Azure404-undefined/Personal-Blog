@@ -21,7 +21,7 @@ export const getMyArticles = (params: API.Articles.getArticleParams) => {
 }
 
 export const getArticleById = (id: string) => {
-  return request<any>({
+  return request<API.Articles.Article>({
     url: `/articles/${id}`,
     method: "GET",
   });
