@@ -60,7 +60,42 @@ const modelGet = async (id) => {
   return (data.records && data.records[0]) || null;
 };
 
-// ---- POST /auth/login 代理 ----
+// ---- POST /auth/refresh 代理 ----
+
+const proxyRefresh = (refreshToken) =>
+  new Promise((resolve, reject) => {
+    const body = JSON.stringify({ refresh_token: refreshToken, grant_type: 'refresh_token' });
+    const req = https.request(
+      {
+        hostname: `${ENV}.api.tcloudbasegateway.com`,
+        path: '/auth/v1/token',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-device-id': `blog-bff-${Date.now()}`,
+        },
+      },
+      (res) => {
+        let raw = '';
+        res.on('data', (c) => (raw += c));
+        res.on('end', () => {
+          try {
+            const data = JSON.parse(raw);
+            if (res.statusCode >= 400) {
+              reject({ statusCode: res.statusCode, message: data.message || 'token refresh failed' });
+            } else {
+              resolve(data);
+            }
+          } catch (_) {
+            reject({ statusCode: 502, message: 'auth upstream parse error' });
+          }
+        });
+      }
+    );
+    req.on('error', (e) => reject({ statusCode: 502, message: `auth upstream: ${e.message}` }));
+    req.write(body);
+    req.end();
+  });
 
 const proxyLogin = (username, password) =>
   new Promise((resolve, reject) => {
@@ -125,6 +160,18 @@ exports.main = async (event) => {
         return reply(400, { error: 'username and password required' });
       }
       const token = await proxyLogin(creds.username, creds.password);
+      return reply(200, token);
+    }
+
+    if (method === 'POST' && path === '/auth/refresh') {
+      let body;
+      try { body = JSON.parse(event.body || '{}'); } catch (_) {
+        return reply(400, { error: 'invalid JSON body' });
+      }
+      if (!body.refresh_token) {
+        return reply(400, { error: 'refresh_token required' });
+      }
+      const token = await proxyRefresh(body.refresh_token);
       return reply(200, token);
     }
 

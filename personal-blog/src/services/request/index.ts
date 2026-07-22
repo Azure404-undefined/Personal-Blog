@@ -1,9 +1,12 @@
 import axios from "axios";
 import router from "@/router";
 import { useAuthStore } from "@/stores/modules/auth";
+import { ElMessage } from "element-plus";
 
-// const token = localStorage.getItem("token");
-// const Authorization = token ? `Bearer ${token}` : "";
+let isRefreshingToken: boolean = false; // 标记是否正在刷新 token
+// let isOnece: boolean = false; // 标记是否已经刷新过一次 token
+let refreshPromise: Promise<void> | null = null; // 存储刷新 token 的 Promise
+// let originalRequestQueue: Array<() => void> = []; // 存储原始请求的队列
 
 const request = axios.create({
   baseURL: import.meta.env.VITE_BFF_URL,
@@ -33,13 +36,24 @@ request.interceptors.response.use(
     // 对响应数据做点什么
     return response.data;
   },
-  (error) => {
+  async (error) => {
     // 对响应错误做点什么
     const authStore = useAuthStore();
+    const originalRequest = error.config;
     if (error.response?.status === 401) {
       // 处理未授权错误
-      authStore.clearLocalToken();
-      router.push("/login");
+      if (!isRefreshingToken) {
+        isRefreshingToken = true;
+        refreshPromise = authStore.refreshUserToken().finally(() => {
+          isRefreshingToken = false;
+          refreshPromise = null; // 清空刷新 token 的 Promise
+        });
+        // return request(originalRequest);
+      }
+        // 如果正在刷新 token，则等待刷新完成后再重试原始请求
+        await refreshPromise;
+        originalRequest.headers.Authorization = `Bearer ${authStore.token}`;
+        return request(originalRequest);
     }
     if (error.response?.status === 403) {
       // 处理禁止访问错误
