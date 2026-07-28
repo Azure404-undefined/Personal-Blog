@@ -4,6 +4,7 @@ declare namespace API {
       _id: string;
       title: string;
       content: string;
+      category?: string;
       ownerUid: string;
       createdAt: number;
       updatedAt: number;
@@ -23,16 +24,20 @@ declare namespace API {
     interface getArticleParams {
       page: number;
       pageSize: number;
+      category?: string;
+      q?: string;
     }
 
     interface createArticleParams {
       title: string;
       content: string;
+      category?: string;
     }
 
     interface updateArticleParams {
-      title: string;
-      content: string;
+      title?: string;
+      content?: string;
+      category?: string;
     }
   }
 }

@@ -188,13 +188,38 @@ exports.main = async (event) => {
         const uid = requireUid(headers);
         where.ownerUid = { $eq: uid };
       }
+      if (q.category) {
+        where.category = { $eq: q.category };
+      }
       const { data } = await models.articles.list({
         filter: { where },
         select: { $master: true },
         orderBy: [{ createdAt: 'desc' }],
         pageSize, pageNumber, getCount: true,
       });
-      return reply(200, { records: data.records, total: data.total, page: pageNumber, pageSize });
+      // 关键词搜索:取全部再过滤,避免分页错位(博客规模小)
+      let records = data.records;
+      let total = data.total;
+      let resultPage = pageNumber;
+      if (q.q) {
+        // 重新取全部(不翻页),过滤后再切片
+        const { data: all } = await models.articles.list({
+          filter: { where },
+          select: { $master: true },
+          orderBy: [{ createdAt: 'desc' }],
+          pageSize: 200, pageNumber: 1, getCount: true,
+        });
+        const kw = q.q.toLowerCase();
+        const filtered = all.records.filter((r) =>
+          (r.title && r.title.toLowerCase().includes(kw)) ||
+          (r.content && r.content.toLowerCase().includes(kw))
+        );
+        total = filtered.length;
+        resultPage = Math.min(pageNumber, Math.ceil(total / pageSize) || 1);
+        const start = (resultPage - 1) * pageSize;
+        records = filtered.slice(start, start + pageSize);
+      }
+      return reply(200, { records, total, page: resultPage, pageSize });
     }
 
     // GET /articles/:id —— 详情
@@ -203,6 +228,19 @@ exports.main = async (event) => {
       const record = await modelGet(mDetailGet[1]);
       if (!record) return reply(404, { error: 'not found' });
       return reply(200, record);
+    }
+
+    // GET /categories —— 已有分类列表
+    if (method === 'GET' && path === '/categories') {
+      const { data } = await models.articles.list({
+        filter: { where: {} },
+        select: { $master: true },
+        pageSize: 200,
+      });
+      const cats = [...new Set(
+        (data.records || []).map((r) => r.category).filter(Boolean)
+      )].sort();
+      return reply(200, cats);
     }
 
     // ────────────────────────────────────────
@@ -219,9 +257,9 @@ exports.main = async (event) => {
       if (!input.title || !input.content) {
         return reply(400, { error: 'title and content required' });
       }
-      const { data } = await models.articles.create({
-        data: { title: input.title, content: input.content, ownerUid: uid },
-      });
+      const createData = { title: input.title, content: input.content, ownerUid: uid };
+      if (input.category) createData.category = input.category;
+      const { data } = await models.articles.create({ data: createData });
       return reply(201, data);
     }
 
@@ -240,6 +278,7 @@ exports.main = async (event) => {
       const updates = {};
       if (patch.title !== undefined) updates.title = patch.title;
       if (patch.content !== undefined) updates.content = patch.content;
+      if (patch.category !== undefined) updates.category = patch.category || null;
       if (!Object.keys(updates).length) return reply(400, { error: 'no fields to update' });
 
       const { data } = await models.articles.update({

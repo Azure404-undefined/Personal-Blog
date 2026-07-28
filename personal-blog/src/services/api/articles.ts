@@ -43,6 +43,13 @@ export const updateArticle = (id: string, data: API.Articles.updateArticleParams
   });
 }
 
+export const getCategories = () => {
+  return request<string[]>({
+    url: "/categories",
+    method: "GET",
+  });
+}
+
 export const deleteArticle = (id: string) => {
   return request<{ok: boolean}>({
     url: `/articles/${id}`,

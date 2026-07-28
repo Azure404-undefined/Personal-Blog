@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref } from 'vue';
 import { useAuthStore } from '@/stores/modules/auth';
 import { useAppStore } from '@/stores/modules/app';
 import { useRouter, useRoute } from 'vue-router';
@@ -7,6 +8,16 @@ const authStore = useAuthStore();
 const appStore = useAppStore();
 const router = useRouter();
 const route = useRoute();
+
+const searchQuery = ref('');
+const handleSearch = () => {
+  const q = searchQuery.value.trim();
+  if (q) {
+    router.push({ path: '/', query: { q } });
+  } else {
+    router.push('/');
+  }
+};
 
 const handleLogout = () => {
   authStore.clearLocalToken();
@@ -41,6 +52,21 @@ const handleLogout = () => {
             @click="appStore.closeMenu()"
           >写文章</router-link>
         </nav>
+
+        <div class="search-box">
+          <el-input
+            v-model="searchQuery"
+            placeholder="搜索文章..."
+            size="small"
+            clearable
+            @keyup.enter="handleSearch"
+            @clear="handleSearch"
+          >
+            <template #prefix>
+              <el-icon><Search /></el-icon>
+            </template>
+          </el-input>
+        </div>
 
         <div class="user-area">
           <template v-if="authStore.isLogin">
@@ -144,6 +170,11 @@ $color-hover-bg: #f0f2f5;
       color: $color-primary;
     }
   }
+}
+
+// ── 搜索框 ──
+.search-box {
+  width: 200px;
 }
 
 // ── 用户区 ──

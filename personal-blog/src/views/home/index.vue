@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { getArticles } from '@/services/api/articles';
+import { ref, watch, onMounted, computed } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { getArticles, getCategories } from '@/services/api/articles';
 
 defineOptions({ name: 'HomeView' });
 
 const router = useRouter();
+const route = useRoute();
 
 const loading = ref(true);
 const error = ref('');
@@ -13,12 +14,24 @@ const articles = ref<API.Articles.Article[]>([]);
 const total = ref(0);
 const page = ref(1);
 const pageSize = 10;
+const category = ref('');
+const categories = ref<string[]>([]);
+const MAX_VISIBLE_TABS = 5;
+
+const visibleCats = computed(() => categories.value.slice(0, MAX_VISIBLE_TABS));
+const overflowCats = computed(() => categories.value.slice(MAX_VISIBLE_TABS));
+const showOverflow = computed(() => overflowCats.value.length > 0);
 
 const fetchArticles = async () => {
   loading.value = true;
   error.value = '';
   try {
-    const res = await getArticles({ page: page.value, pageSize });
+    const res = await getArticles({
+      page: page.value,
+      pageSize,
+      category: category.value || undefined,
+      q: (route.query.q as string) || undefined,
+    } as API.Articles.getArticleParams);
     articles.value = res.records;
     total.value = res.total;
   } catch (e: any) {
@@ -26,6 +39,11 @@ const fetchArticles = async () => {
   } finally {
     loading.value = false;
   }
+};
+
+const onCategoryChange = () => {
+  page.value = 1;
+  fetchArticles();
 };
 
 const onPageChange = (p: number) => {
@@ -44,11 +62,49 @@ const excerpt = (md: string, max = 120) => {
   return text.length > max ? text.slice(0, max) + '...' : text;
 };
 
-onMounted(fetchArticles);
+onMounted(() => {
+  fetchArticles();
+  getCategories().then((list) => { categories.value = list; }).catch(() => {});
+});
+
+// 监听搜索关键词变化(同一路由导航时 onMounted 不触发)
+watch(() => route.query.q, () => {
+  page.value = 1;
+  fetchArticles();
+});
 </script>
 
 <template>
   <div class="home-page">
+    <!-- 分类筛选 -->
+    <div v-if="categories.length" class="filter-bar">
+      <button
+        :class="['cat-tag', { 'cat-tag--active': !category }]"
+        @click="category = ''; onCategoryChange()"
+      >全部</button>
+      <button
+        v-for="cat in visibleCats"
+        :key="cat"
+        :class="['cat-tag', { 'cat-tag--active': category === cat }]"
+        @click="category = cat; onCategoryChange()"
+      >{{ cat }}</button>
+      <el-select
+        v-if="showOverflow"
+        :model-value="overflowCats.includes(category) ? category : ''"
+        placeholder="更多"
+        size="small"
+        class="cat-overflow"
+        @change="(val: string) => { category = val; onCategoryChange(); }"
+      >
+        <el-option
+          v-for="cat in overflowCats"
+          :key="cat"
+          :label="cat"
+          :value="cat"
+        />
+      </el-select>
+    </div>
+
     <!-- loading -->
     <div v-if="loading" class="state-box">
       <el-icon class="is-loading" :size="28"><Loading /></el-icon>
@@ -99,6 +155,44 @@ onMounted(fetchArticles);
 .home-page {
   max-width: 720px;
   margin: 0 auto;
+}
+
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.cat-tag {
+  border: 1px solid #dcdfe6;
+  background: #fff;
+  color: #606266;
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  &:hover {
+    color: #409eff;
+    border-color: #c6e2ff;
+    background: #ecf5ff;
+  }
+  &--active {
+    color: #fff;
+    background: #409eff;
+    border-color: #409eff;
+    &:hover {
+      color: #fff;
+      background: #337ecc;
+      border-color: #337ecc;
+    }
+  }
+}
+
+.cat-overflow {
+  width: 100px;
 }
 
 .state-box {

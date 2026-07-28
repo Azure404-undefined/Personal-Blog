@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { getArticleById, createArticle, updateArticle } from '@/services/api/articles';
+import { getArticleById, createArticle, updateArticle, getCategories } from '@/services/api/articles';
 import { useAuthStore } from '@/stores/modules/auth';
 import MarkdownIt from 'markdown-it';
 import SafeContent from '@/components/safeContent.vue';
@@ -18,6 +18,8 @@ const editId = computed(() => route.query.id as string);
 
 const title = ref('');
 const content = ref('');
+const category = ref('');
+const categories = ref<string[]>([]);
 const saving = ref(false);
 const loadingArticle = ref(false);
 const fetchError = ref('');
@@ -36,6 +38,7 @@ const fetchArticle = async () => {
     }
     title.value = article.title;
     content.value = article.content;
+    category.value = article.category || '';
   } catch (e: any) {
     fetchError.value = e?.message || '加载文章失败';
   } finally {
@@ -49,12 +52,14 @@ watch(
   () => {
     title.value = '';
     content.value = '';
+    category.value = '';
     fetchError.value = '';
     if (isEdit.value) fetchArticle();
   }
 );
 
 onMounted(() => {
+  getCategories().then((list) => { categories.value = list; }).catch(() => {});
   if (isEdit.value) fetchArticle();
 });
 
@@ -69,11 +74,12 @@ const handleSubmit = async () => {
   saveError.value = '';
   try {
     let id: string;
+    const payload = { title: t, content: c, category: category.value || null };
     if (isEdit.value) {
-      await updateArticle(editId.value, { title: t, content: c });
+      await updateArticle(editId.value, payload);
       id = editId.value;
     } else {
-      const res = await createArticle({ title: t, content: c });
+      const res = await createArticle(payload);
       id = res.id;
     }
     router.push(`/articles/${id}`);
@@ -107,6 +113,14 @@ const handleSubmit = async () => {
         placeholder="文章标题"
         size="large"
         :disabled="saving"
+      />
+
+      <el-autocomplete
+        v-model="category"
+        :fetch-suggestions="(q: string, cb: any) => cb(q ? categories.filter(c => c.includes(q)).map(c => ({value:c})) : categories.map(c => ({value:c})))"
+        placeholder="分类(可选,输入新的或选已有)"
+        :disabled="saving"
+        clearable
       />
 
       <div class="editor-area">
