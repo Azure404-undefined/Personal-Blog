@@ -244,6 +244,62 @@ exports.main = async (event) => {
     }
 
     // ────────────────────────────────────────
+    //  Comments
+    // ────────────────────────────────────────
+
+    // GET /articles/:id/comments
+    const mComments = method === 'GET' && path.match(/^\/articles\/([^/]+)\/comments$/);
+    if (mComments) {
+      const { data } = await models.comments.list({
+        filter: { where: { articleId: { $eq: mComments[1] } } },
+        select: { $master: true },
+        orderBy: [{ createdAt: 'asc' }],
+        pageSize: 200, getCount: true,
+      });
+      return reply(200, { records: data.records, total: data.total });
+    }
+
+    // POST /articles/:id/comments
+    const mPostComment = method === 'POST' && path.match(/^\/articles\/([^/]+)\/comments$/);
+    if (mPostComment) {
+      const uid = requireUid(headers);
+      let input;
+      try { input = JSON.parse(event.body || '{}'); } catch (_) {
+        return reply(400, { error: 'invalid JSON' });
+      }
+      if (!input.content) return reply(400, { error: 'content required' });
+      const { data } = await models.comments.create({
+        data: {
+          articleId: mPostComment[1],
+          content: input.content,
+          authorUid: uid,
+          parentId: input.parentId || null,
+          author: input.author || '',
+          replyToAuthor: input.replyToAuthor || null,
+        },
+      });
+      return reply(201, data);
+    }
+
+    // DELETE /comments/:id
+    const mDelComment = method === 'DELETE' && path.match(/^\/comments\/([^/]+)$/);
+    if (mDelComment) {
+      const uid = requireUid(headers);
+      const { data } = await models.comments.list({
+        filter: { where: { _id: { $eq: mDelComment[1] } } },
+        select: { $master: true },
+        pageSize: 1,
+      });
+      const comment = (data.records && data.records[0]) || null;
+      if (!comment) return reply(404, { error: 'not found' });
+      if (comment.authorUid !== uid) return reply(403, { error: 'forbidden' });
+      await models.comments.delete({
+        filter: { where: { _id: { $eq: mDelComment[1] } } },
+      });
+      return reply(200, { ok: true });
+    }
+
+    // ────────────────────────────────────────
     //  Write (authenticated)
     // ────────────────────────────────────────
 

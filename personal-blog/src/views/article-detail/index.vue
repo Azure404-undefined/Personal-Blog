@@ -5,6 +5,7 @@ import { getArticleById, deleteArticle } from '@/services/api/articles';
 import { useAuthStore } from '@/stores/modules/auth';
 import MarkdownIt from 'markdown-it';
 import SafeContent from '@/components/safeContent.vue';
+import CommentSection from '@/components/CommentSection.vue';
 import { ElMessageBox } from 'element-plus';
 
 defineOptions({ name: 'ArticleDetailView' });
@@ -104,6 +105,8 @@ watch(() => route.params.id, fetchArticle);
       <div class="detail-body">
         <SafeContent :html="html" />
       </div>
+
+      <CommentSection :article-id="id" />
     </template>
   </div>
 </template>

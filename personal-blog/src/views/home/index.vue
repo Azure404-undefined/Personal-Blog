@@ -58,7 +58,7 @@ const fmtDate = (ts: number) => {
 };
 
 const excerpt = (md: string, max = 120) => {
-  const text = md.replace(/[#*>`\[\]()!_~]/g, '').replace(/\s+/g, ' ').trim();
+  const text = md.replace(/[#*>`[\]()!_~]/g, '').replace(/\s+/g, ' ').trim();
   return text.length > max ? text.slice(0, max) + '...' : text;
 };
 

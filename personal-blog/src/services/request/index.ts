@@ -1,7 +1,5 @@
 import axios from "axios";
-import router from "@/router";
 import { useAuthStore } from "@/stores/modules/auth";
-import { ElMessage } from "element-plus";
 
 let isRefreshingToken: boolean = false; // 标记是否正在刷新 token
 // let isOnece: boolean = false; // 标记是否已经刷新过一次 token

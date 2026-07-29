@@ -7,6 +7,7 @@ import router from "@/router";
 export const useAuthStore = defineStore("auth", () => {
     const token = ref(localStorage.getItem("token") || undefined);
     const refreshTokens = ref(localStorage.getItem("refresh_token") || undefined);
+    const username = ref(localStorage.getItem("username") || undefined);
     const isLogin = computed(() => Boolean(token.value));
     // const isRefreshToken = computed(() => Boolean(refreshTokens.value));
     const uid = computed(() => {
@@ -30,14 +31,18 @@ export const useAuthStore = defineStore("auth", () => {
     const clearLocalToken = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("refresh_token");
+        localStorage.removeItem("username");
         token.value = undefined;
         refreshTokens.value = undefined;
+        username.value = undefined;
     }
 
-    const userlogin = async (username: string, password: string) => {
+    const userlogin = async (loginName: string, password: string) => {
         try{
-            const response = await login({ username, password });
+            const response = await login({ username: loginName, password });
             setLocalToken(response.access_token,response.refresh_token);
+            username.value = loginName;
+            localStorage.setItem("username", loginName);
         } catch (error) {
             clearLocalToken();
             ElMessage({
@@ -82,6 +87,7 @@ export const useAuthStore = defineStore("auth", () => {
         token,
         isLogin,
         uid,
+        username,
         refreshUserToken,
         setLocalToken,
         clearLocalToken,
