@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { getArticleById, createArticle, updateArticle, getCategories } from '@/services/api/articles';
+import { uploadImage } from '@/services/api/upload';
+import { ElMessage } from 'element-plus';
+import { Picture } from '@element-plus/icons-vue';
 import { useAuthStore } from '@/stores/modules/auth';
 import MarkdownIt from 'markdown-it';
 import SafeContent from '@/components/safeContent.vue';
@@ -24,6 +27,11 @@ const saving = ref(false);
 const loadingArticle = ref(false);
 const fetchError = ref('');
 const saveError = ref('');
+const uploading = ref(false);
+const uploadError = ref('');
+
+const editorRef = ref<any>(null);
+const fileInputRef = ref<HTMLInputElement | null>(null);
 
 const previewHtml = computed(() => (content.value ? md.render(content.value) : ''));
 
@@ -74,7 +82,7 @@ const handleSubmit = async () => {
   saveError.value = '';
   try {
     let id: string;
-    const payload = { title: t, content: c, category: category.value || null };
+    const payload = { title: t, content: c, category: category.value || undefined };
     if (isEdit.value) {
       await updateArticle(editId.value, payload);
       id = editId.value;
@@ -89,6 +97,69 @@ const handleSubmit = async () => {
     saving.value = false;
   }
 };
+
+const triggerFilePicker = () => {
+  fileInputRef.value?.click();
+};
+
+const uploadAndInsert = async (file: File) => {
+  if (file.size > 5 * 1024 * 1024) {
+    uploadError.value = '图片不能超过 5MB';
+    ElMessage.error('图片不能超过 5MB');
+    return;
+  }
+  uploadError.value = '';
+  uploading.value = true;
+  try {
+    const res = await uploadImage(file);
+    const escaped = file.name.replace(/]/g, '\\]');
+    const md = `![${escaped}](${res.url})`;
+    insertText(md);
+    ElMessage.success('图片已插入');
+  } catch (err: any) {
+    const msg = err?.message || err || '上传失败';
+    uploadError.value = msg;
+    ElMessage.error(msg);
+  } finally {
+    uploading.value = false;
+  }
+};
+
+const handleFileChange = async (e: Event) => {
+  const file = (e.target as HTMLInputElement).files?.[0];
+  if (!file) return;
+  await uploadAndInsert(file);
+  (e.target as HTMLInputElement).value = '';
+};
+
+const insertText = (text: string) => {
+  const textarea = editorRef.value?.textarea as HTMLTextAreaElement | undefined;
+  if (!textarea) {
+    content.value += `\n${text}`;
+    return;
+  }
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+  content.value = content.value.slice(0, start) + text + content.value.slice(end);
+  nextTick(() => {
+    textarea.focus();
+    textarea.selectionStart = textarea.selectionEnd = start + text.length;
+  });
+};
+
+const handlePaste = (e: ClipboardEvent) => {
+  const items = e.clipboardData?.items;
+  if (!items) return;
+  for (const item of items) {
+    if (item.type.startsWith('image/')) {
+      e.preventDefault();
+      const file = item.getAsFile();
+      if (file) uploadAndInsert(file);
+      return;
+    }
+  }
+};
+
 </script>
 
 <template>
@@ -123,15 +194,32 @@ const handleSubmit = async () => {
         clearable
       />
 
+      <div class="editor-toolbar">
+        <input
+          ref="fileInputRef"
+          type="file"
+          accept="image/*"
+          style="display:none"
+          @change="handleFileChange"
+        />
+        <el-button size="small" :disabled="uploading" @click="triggerFilePicker">
+          <el-icon v-if="!uploading"><Picture /></el-icon>
+          {{ uploading ? '上传中...' : '插入图片' }}
+        </el-button>
+        <span v-if="uploadError" class="toolbar-error">{{ uploadError }}</span>
+      </div>
+
       <div class="editor-area">
         <div class="editor-pane">
           <el-input
+            ref="editorRef"
             v-model="content"
             type="textarea"
             placeholder="Markdown 正文..."
             :rows="18"
             :disabled="saving"
             resize="vertical"
+            @paste="handlePaste"
           />
         </div>
         <div class="preview-pane">
@@ -226,6 +314,17 @@ const handleSubmit = async () => {
 
 .save-error {
   margin: 0;
+  font-size: 13px;
+  color: #f56c6c;
+}
+
+.editor-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.toolbar-error {
   font-size: 13px;
   color: #f56c6c;
 }

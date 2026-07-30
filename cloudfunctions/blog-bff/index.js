@@ -359,6 +359,58 @@ exports.main = async (event) => {
     }
 
     // ────────────────────────────────────────
+    //  Diagnostics
+    // ────────────────────────────────────────
+
+    if (method === 'GET' && path === '/ping') {
+      return reply(200, { pong: true, env: ENV });
+    }
+
+    // ────────────────────────────────────────
+    //  File proxy — 将 fileID 换为新鲜 CDN URL (302)
+    // ────────────────────────────────────────
+
+    if (method === 'GET' && path.startsWith('/files/')) {
+      const encoded = path.slice('/files/'.length);
+      const fileID = decodeURIComponent(encoded);
+      const { fileList } = await app.getTempFileURL({ fileList: [fileID] });
+      const target = fileList && fileList[0] && fileList[0].tempFileURL;
+      if (!target) return reply(404, { error: 'file not found' });
+      return {
+        statusCode: 302,
+        headers: { ...CORS_HEADERS, Location: target },
+        body: '',
+      };
+    }
+
+    // ────────────────────────────────────────
+    //  Upload (authenticated) — 前端压缩 base64 → BFF 上传 COS
+    // ────────────────────────────────────────
+
+    if (method === 'POST' && /^\/upload\/?$/.test(path)) {
+      requireUid(headers);
+      let input;
+      try { input = JSON.parse(event.body || '{}'); } catch (_) {
+        return reply(400, { error: 'invalid JSON body' });
+      }
+      const filename = String(input.filename || '').trim();
+      if (!filename || typeof input.data !== 'string' || !input.data) {
+        return reply(400, { error: 'filename and data (base64) required' });
+      }
+      if (input.data.length > 100 * 1024) {
+        return reply(400, { error: 'image too large, max ~75KB after compression' });
+      }
+
+      const safeName = filename.replace(/[^a-zA-Z0-9._-]/g, '_');
+      const cloudPath = `uploads/${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${safeName}`;
+      const buffer = Buffer.from(input.data, 'base64');
+      const { fileID } = await app.uploadFile({ cloudPath, fileContent: buffer });
+
+      // 返回 BFF 代理路径，前端拼上 BFF baseURL 即为永久有效的图片链接
+      return reply(200, { url: `/files/${encodeURIComponent(fileID)}`, fileID });
+    }
+
+    // ────────────────────────────────────────
     return reply(404, { error: 'route not found', method, path });
   } catch (e) {
     if (e && e.statusCode) return reply(e.statusCode, { error: e.message });
