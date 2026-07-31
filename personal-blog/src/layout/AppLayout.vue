@@ -1,56 +1,58 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useAuthStore } from '@/stores/modules/auth';
-import { useAppStore } from '@/stores/modules/app';
-import { useRouter, useRoute } from 'vue-router';
+import { ref } from 'vue'
+import { useAuthStore } from '@/stores/modules/auth'
+import { useAppStore } from '@/stores/modules/app'
+import { useRouter, useRoute } from 'vue-router'
+import { Search } from '@element-plus/icons-vue'
+// import { useScroll } from '@vueuse/core'
 
-const authStore = useAuthStore();
-const appStore = useAppStore();
-const router = useRouter();
-const route = useRoute();
+const authStore = useAuthStore()
+const appStore = useAppStore()
+const router = useRouter()
+const route = useRoute()
 
-const searchQuery = ref('');
+// const headerRef = useTemplateRef('headerRef');
+// const { y, isScrolling, directions, arrivedState } = useScroll(headerRef);
+const searchQuery = ref('')
 const handleSearch = () => {
-  const q = searchQuery.value.trim();
+  const q = searchQuery.value.trim()
   if (q) {
-    router.push({ path: '/', query: { q } });
+    router.push({ path: '/', query: { q } })
   } else {
-    router.push('/');
+    router.push('/')
   }
-};
+}
 
 const handleLogout = () => {
-  authStore.clearLocalToken();
-  appStore.closeMenu();
-  router.push('/');
-};
+  authStore.clearLocalToken()
+  appStore.closeMenu()
+  router.push('/')
+}
 </script>
 
 <template>
   <div class="app-layout">
-    <header class="app-header">
+    <header class="app-header" ref="headerRef">
       <div class="header-inner">
-        <router-link to="/" class="logo" @click="appStore.closeMenu()">
-          📝 个人博客
-        </router-link>
+        <router-link to="/" class="logo" @click="appStore.closeMenu()"> 📝 个人博客 </router-link>
 
         <!-- 导航链接 -->
         <nav class="nav-links" :class="{ 'nav-links--open': appStore.isMenuOpen }">
-          <router-link
-            to="/"
-            :class="{ active: route.path === '/' }"
-            @click="appStore.closeMenu()"
-          >首页</router-link>
+          <router-link to="/" :class="{ active: route.path === '/' }" @click="appStore.closeMenu()"
+            >首页</router-link
+          >
           <router-link
             to="/my-articles"
             :class="{ active: route.path === '/my-articles' }"
             @click="appStore.closeMenu()"
-          >我的文章</router-link>
+            >我的文章</router-link
+          >
           <router-link
             to="/write"
             :class="{ active: route.path === '/write' }"
             @click="appStore.closeMenu()"
-          >写文章</router-link>
+            >写文章</router-link
+          >
         </nav>
 
         <div class="search-box">
@@ -70,7 +72,7 @@ const handleLogout = () => {
 
         <div class="user-area">
           <template v-if="authStore.isLogin">
-            <span class="uid">用户</span>
+            <span class="uid">{{ authStore.username }}</span>
             <el-button text size="small" @click="handleLogout">登出</el-button>
           </template>
           <el-button v-else size="small" type="primary" @click="router.push('/login')">
@@ -159,7 +161,9 @@ $color-hover-bg: #f0f2f5;
     font-size: 14px;
     padding: 4px 10px;
     border-radius: 4px;
-    transition: color 0.2s, background 0.2s;
+    transition:
+      color 0.2s,
+      background 0.2s;
 
     &:hover {
       color: $color-primary;
@@ -217,7 +221,9 @@ $color-hover-bg: #f0f2f5;
     height: 2px;
     background: $color-text;
     border-radius: 1px;
-    transition: transform 0.3s, opacity 0.3s;
+    transition:
+      transform 0.3s,
+      opacity 0.3s;
   }
 
   // 三横 → X 动画
@@ -241,7 +247,7 @@ $color-hover-bg: #f0f2f5;
   max-width: $max-width;
   width: 100%;
   margin: 0 auto;
-  padding: 24px 16px;
+  padding: 0px 16px;
 }
 
 // ── 移动端 ──
@@ -262,7 +268,9 @@ $color-hover-bg: #f0f2f5;
     transform: translateY(-100%);
     opacity: 0;
     pointer-events: none;
-    transition: transform 0.25s, opacity 0.25s;
+    transition:
+      transform 0.25s,
+      opacity 0.25s;
     z-index: 99;
 
     &--open {

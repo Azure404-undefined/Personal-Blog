@@ -1,37 +1,37 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
-import { useAuthStore } from '@/stores/modules/auth';
+import { ref } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { useAuthStore } from '@/stores/modules/auth'
 
-defineOptions({ name: 'LoginView' });
+defineOptions({ name: 'LoginView' })
 
-const router = useRouter();
-const route = useRoute();
-const authStore = useAuthStore();
+const router = useRouter()
+const route = useRoute()
+const authStore = useAuthStore()
 
-const username = ref('');
-const password = ref('');
-const loading = ref(false);
-const errorMsg = ref('');
+const username = ref('')
+const password = ref('')
+const loading = ref(false)
+const errorMsg = ref('')
 
 const handleLogin = async () => {
   if (!username.value || !password.value) {
-    errorMsg.value = '请输入用户名和密码';
-    return;
+    errorMsg.value = '请输入用户名和密码'
+    return
   }
-  loading.value = true;
-  errorMsg.value = '';
+  loading.value = true
+  errorMsg.value = ''
   try {
-    await authStore.userlogin(username.value, password.value);
-    const redirect = (route.query.redirect as string) || '/';
-    router.push(redirect);
+    await authStore.userlogin(username.value, password.value)
+    const redirect = (route.query.redirect as string) || '/'
+    router.push(redirect)
   } catch {
     // store 已弹出 ElMessage.error,这里补表单内文案
-    errorMsg.value = '登录失败,请检查用户名和密码';
+    errorMsg.value = '登录失败,请检查用户名和密码'
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 </script>
 
 <template>
@@ -59,12 +59,7 @@ const handleLogin = async () => {
 
         <p v-if="errorMsg" class="login-error">{{ errorMsg }}</p>
 
-        <el-button
-          type="primary"
-          size="large"
-          :loading="loading"
-          native-type="submit"
-        >
+        <el-button type="primary" size="large" :loading="loading" native-type="submit">
           {{ loading ? '登录中...' : '登录' }}
         </el-button>
       </form>
@@ -80,8 +75,8 @@ const handleLogin = async () => {
   justify-content: center;
   background:
     linear-gradient(135deg, rgba(64, 158, 255, 0.12) 0%, rgba(255, 255, 255, 1) 60%),
-    url('https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1200&q=60')
-      center / cover no-repeat;
+    url('https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1200&q=60') center / cover
+      no-repeat;
 }
 
 .login-card {

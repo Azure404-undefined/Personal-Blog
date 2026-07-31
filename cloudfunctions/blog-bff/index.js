@@ -315,6 +315,7 @@ exports.main = async (event) => {
       }
       const createData = { title: input.title, content: input.content, ownerUid: uid };
       if (input.category) createData.category = input.category;
+      if (input.coverImage) createData.coverImage = input.coverImage;
       const { data } = await models.articles.create({ data: createData });
       return reply(201, data);
     }
@@ -335,6 +336,7 @@ exports.main = async (event) => {
       if (patch.title !== undefined) updates.title = patch.title;
       if (patch.content !== undefined) updates.content = patch.content;
       if (patch.category !== undefined) updates.category = patch.category || null;
+      if (patch.coverImage !== undefined) updates.coverImage = patch.coverImage || null;
       if (!Object.keys(updates).length) return reply(400, { error: 'no fields to update' });
 
       const { data } = await models.articles.update({

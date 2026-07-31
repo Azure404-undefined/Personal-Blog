@@ -1,165 +1,218 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, nextTick } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { getArticleById, createArticle, updateArticle, getCategories } from '@/services/api/articles';
-import { uploadImage } from '@/services/api/upload';
-import { ElMessage } from 'element-plus';
-import { Picture } from '@element-plus/icons-vue';
-import { useAuthStore } from '@/stores/modules/auth';
-import MarkdownIt from 'markdown-it';
-import SafeContent from '@/components/safeContent.vue';
+import { ref, computed, watch, onMounted, nextTick } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import {
+  getArticleById,
+  createArticle,
+  updateArticle,
+  getCategories,
+} from '@/services/api/articles'
+import { uploadImage } from '@/services/api/upload'
+import { ElMessage } from 'element-plus'
+import { Picture, Plus, Delete, Loading } from '@element-plus/icons-vue'
+import { useAuthStore } from '@/stores/modules/auth'
+import MarkdownIt from 'markdown-it'
+import SafeContent from '@/components/safeContent.vue'
 
-defineOptions({ name: 'WriteView' });
+defineOptions({ name: 'WriteView' })
 
-const route = useRoute();
-const router = useRouter();
-const authStore = useAuthStore();
-const md = new MarkdownIt({ breaks: true, linkify: true });
+const route = useRoute()
+const router = useRouter()
+const authStore = useAuthStore()
+const md = new MarkdownIt({ breaks: true, linkify: true })
 
-const isEdit = computed(() => !!route.query.id);
-const editId = computed(() => route.query.id as string);
+const isEdit = computed(() => !!route.query.id)
+const editId = computed(() => route.query.id as string)
 
-const title = ref('');
-const content = ref('');
-const category = ref('');
-const categories = ref<string[]>([]);
-const saving = ref(false);
-const loadingArticle = ref(false);
-const fetchError = ref('');
-const saveError = ref('');
-const uploading = ref(false);
-const uploadError = ref('');
+const title = ref('')
+const content = ref('')
+const category = ref('')
+const categories = ref<string[]>([])
+const saving = ref(false)
+const loadingArticle = ref(false)
+const fetchError = ref('')
+const saveError = ref('')
+const uploading = ref(false)
+const uploadError = ref('')
 
-const editorRef = ref<any>(null);
-const fileInputRef = ref<HTMLInputElement | null>(null);
+const coverImageUrl = ref('')
+const coverUploading = ref(false)
+const coverError = ref('')
+const coverInputRef = ref<HTMLInputElement | null>(null)
 
-const previewHtml = computed(() => (content.value ? md.render(content.value) : ''));
+const editorRef = ref<{ textarea?: HTMLTextAreaElement } | null>(null)
+const fileInputRef = ref<HTMLInputElement | null>(null)
+
+const previewHtml = computed(() => (content.value ? md.render(content.value) : ''))
 
 const fetchArticle = async () => {
-  loadingArticle.value = true;
-  fetchError.value = '';
+  loadingArticle.value = true
+  fetchError.value = ''
   try {
-    const article = await getArticleById(editId.value);
+    const article = await getArticleById(editId.value)
     if (article.ownerUid !== authStore.uid) {
-      fetchError.value = '无权编辑他人的文章';
-      return;
+      fetchError.value = '无权编辑他人的文章'
+      return
     }
-    title.value = article.title;
-    content.value = article.content;
-    category.value = article.category || '';
-  } catch (e: any) {
-    fetchError.value = e?.message || '加载文章失败';
+    title.value = article.title
+    content.value = article.content
+    category.value = article.category || ''
+    coverImageUrl.value = article.coverImage || ''
+  } catch (e: unknown) {
+    fetchError.value = e instanceof Error ? e.message : '加载文章失败'
   } finally {
-    loadingArticle.value = false;
+    loadingArticle.value = false
   }
-};
+}
 
 // 路由切换(编辑↔创建)时重置状态
 watch(
   () => route.query.id,
   () => {
-    title.value = '';
-    content.value = '';
-    category.value = '';
-    fetchError.value = '';
-    if (isEdit.value) fetchArticle();
-  }
-);
+    title.value = ''
+    content.value = ''
+    category.value = ''
+    coverImageUrl.value = ''
+    coverError.value = ''
+    fetchError.value = ''
+    if (isEdit.value) fetchArticle()
+  },
+)
 
 onMounted(() => {
-  getCategories().then((list) => { categories.value = list; }).catch(() => {});
-  if (isEdit.value) fetchArticle();
-});
+  getCategories()
+    .then((list) => {
+      categories.value = list
+    })
+    .catch(() => {})
+  if (isEdit.value) fetchArticle()
+})
 
 const handleSubmit = async () => {
-  const t = title.value.trim();
-  const c = content.value.trim();
+  const t = title.value.trim()
+  const c = content.value.trim()
   if (!t || !c) {
-    saveError.value = '标题和内容不能为空';
-    return;
+    saveError.value = '标题和内容不能为空'
+    return
   }
-  saving.value = true;
-  saveError.value = '';
+  saving.value = true
+  saveError.value = ''
   try {
-    let id: string;
-    const payload = { title: t, content: c, category: category.value || undefined };
-    if (isEdit.value) {
-      await updateArticle(editId.value, payload);
-      id = editId.value;
-    } else {
-      const res = await createArticle(payload);
-      id = res.id;
+    let id: string
+    const payload = {
+      title: t,
+      content: c,
+      category: category.value || undefined,
+      coverImage: coverImageUrl.value || undefined,
     }
-    router.push(`/articles/${id}`);
-  } catch (e: any) {
-    saveError.value = e?.message || '保存失败';
+    if (isEdit.value) {
+      await updateArticle(editId.value, payload)
+      id = editId.value
+    } else {
+      const res = await createArticle(payload)
+      id = res.id
+    }
+    router.push(`/articles/${id}`)
+  } catch (e: unknown) {
+    saveError.value = e instanceof Error ? e.message : '保存失败'
   } finally {
-    saving.value = false;
+    saving.value = false
   }
-};
+}
 
 const triggerFilePicker = () => {
-  fileInputRef.value?.click();
-};
+  fileInputRef.value?.click()
+}
 
 const uploadAndInsert = async (file: File) => {
   if (file.size > 5 * 1024 * 1024) {
-    uploadError.value = '图片不能超过 5MB';
-    ElMessage.error('图片不能超过 5MB');
-    return;
+    uploadError.value = '图片不能超过 5MB'
+    ElMessage.error('图片不能超过 5MB')
+    return
   }
-  uploadError.value = '';
-  uploading.value = true;
+  uploadError.value = ''
+  uploading.value = true
   try {
-    const res = await uploadImage(file);
-    const escaped = file.name.replace(/]/g, '\\]');
-    const md = `![${escaped}](${res.url})`;
-    insertText(md);
-    ElMessage.success('图片已插入');
-  } catch (err: any) {
-    const msg = err?.message || err || '上传失败';
-    uploadError.value = msg;
-    ElMessage.error(msg);
+    const res = await uploadImage(file)
+    const escaped = file.name.replace(/]/g, '\\]')
+    const md = `![${escaped}](${res.url})`
+    insertText(md)
+    ElMessage.success('图片已插入')
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : '上传失败'
+    uploadError.value = msg
+    ElMessage.error(msg)
   } finally {
-    uploading.value = false;
+    uploading.value = false
   }
-};
+}
 
 const handleFileChange = async (e: Event) => {
-  const file = (e.target as HTMLInputElement).files?.[0];
-  if (!file) return;
-  await uploadAndInsert(file);
-  (e.target as HTMLInputElement).value = '';
-};
+  const file = (e.target as HTMLInputElement).files?.[0]
+  if (!file) return
+  await uploadAndInsert(file)
+  ;(e.target as HTMLInputElement).value = ''
+}
 
 const insertText = (text: string) => {
-  const textarea = editorRef.value?.textarea as HTMLTextAreaElement | undefined;
+  const textarea = editorRef.value?.textarea as HTMLTextAreaElement | undefined
   if (!textarea) {
-    content.value += `\n${text}`;
-    return;
+    content.value += `\n${text}`
+    return
   }
-  const start = textarea.selectionStart;
-  const end = textarea.selectionEnd;
-  content.value = content.value.slice(0, start) + text + content.value.slice(end);
+  const start = textarea.selectionStart
+  const end = textarea.selectionEnd
+  content.value = content.value.slice(0, start) + text + content.value.slice(end)
   nextTick(() => {
-    textarea.focus();
-    textarea.selectionStart = textarea.selectionEnd = start + text.length;
-  });
-};
+    textarea.focus()
+    textarea.selectionStart = textarea.selectionEnd = start + text.length
+  })
+}
 
 const handlePaste = (e: ClipboardEvent) => {
-  const items = e.clipboardData?.items;
-  if (!items) return;
+  const items = e.clipboardData?.items
+  if (!items) return
   for (const item of items) {
     if (item.type.startsWith('image/')) {
-      e.preventDefault();
-      const file = item.getAsFile();
-      if (file) uploadAndInsert(file);
-      return;
+      e.preventDefault()
+      const file = item.getAsFile()
+      if (file) uploadAndInsert(file)
+      return
     }
   }
-};
+}
 
+const triggerCoverPicker = () => {
+  coverInputRef.value?.click()
+}
+
+const handleCoverChange = async (e: Event) => {
+  const file = (e.target as HTMLInputElement).files?.[0]
+  if (!file) return
+  if (file.size > 5 * 1024 * 1024) {
+    coverError.value = '封面图片不能超过 5MB'
+    ElMessage.error('封面图片不能超过 5MB')
+    return
+  }
+  coverUploading.value = true
+  coverError.value = ''
+  try {
+    const res = await uploadImage(file)
+    coverImageUrl.value = res.url
+    ElMessage.success('封面上传成功')
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : '封面上传失败'
+    coverError.value = msg
+    ElMessage.error(msg)
+  } finally {
+    coverUploading.value = false
+  }
+  ;(e.target as HTMLInputElement).value = ''
+}
+
+const removeCover = () => {
+  coverImageUrl.value = ''
+}
 </script>
 
 <template>
@@ -179,16 +232,42 @@ const handlePaste = (e: ClipboardEvent) => {
 
     <!-- Form -->
     <form v-else class="write-form" @submit.prevent="handleSubmit">
-      <el-input
-        v-model="title"
-        placeholder="文章标题"
-        size="large"
-        :disabled="saving"
-      />
+      <el-input v-model="title" placeholder="文章标题" size="large" :disabled="saving" />
+
+      <!-- Cover image uploader -->
+      <div class="cover-uploader">
+        <input
+          ref="coverInputRef"
+          type="file"
+          accept="image/*"
+          style="display: none"
+          @change="handleCoverChange"
+        />
+        <div v-if="!coverImageUrl" class="cover-placeholder" @click="triggerCoverPicker">
+          <el-icon :size="32"><Plus /></el-icon>
+          <span>{{ coverUploading ? '上传中...' : '上传封面图片（可选）' }}</span>
+        </div>
+        <div v-else class="cover-preview" @click="triggerCoverPicker">
+          <img :src="coverImageUrl" alt="封面预览" />
+          <div class="cover-preview-overlay">
+            <el-button size="small" circle type="danger" @click.stop="removeCover">
+              <el-icon><Delete /></el-icon>
+            </el-button>
+          </div>
+        </div>
+        <span v-if="coverError" class="cover-error">{{ coverError }}</span>
+      </div>
 
       <el-autocomplete
         v-model="category"
-        :fetch-suggestions="(q: string, cb: any) => cb(q ? categories.filter(c => c.includes(q)).map(c => ({value:c})) : categories.map(c => ({value:c})))"
+        :fetch-suggestions="
+          (q: string, cb: any) =>
+            cb(
+              q
+                ? categories.filter((c) => c.includes(q)).map((c) => ({ value: c }))
+                : categories.map((c) => ({ value: c })),
+            )
+        "
         placeholder="分类(可选,输入新的或选已有)"
         :disabled="saving"
         clearable
@@ -199,7 +278,7 @@ const handlePaste = (e: ClipboardEvent) => {
           ref="fileInputRef"
           type="file"
           accept="image/*"
-          style="display:none"
+          style="display: none"
           @change="handleFileChange"
         />
         <el-button size="small" :disabled="uploading" @click="triggerFilePicker">
@@ -273,6 +352,62 @@ const handlePaste = (e: ClipboardEvent) => {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.cover-uploader {
+  margin-bottom: 4px;
+}
+
+.cover-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 140px;
+  border: 2px dashed #dcdfe6;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #c0c4cc;
+  transition:
+    border-color 0.2s,
+    color 0.2s;
+  &:hover {
+    border-color: #409eff;
+    color: #409eff;
+  }
+}
+
+.cover-preview {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: pointer;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  &-overlay {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  &:hover &-overlay {
+    opacity: 1;
+  }
+}
+
+.cover-error {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 13px;
+  color: #f56c6c;
 }
 
 .editor-area {

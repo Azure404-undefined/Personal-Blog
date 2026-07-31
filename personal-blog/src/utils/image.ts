@@ -8,50 +8,50 @@ export const compressImage = (
   quality = 0.7,
 ): Promise<{ data: string; filename: string }> => {
   return new Promise((resolve, reject) => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
+    const img = new Image()
+    const url = URL.createObjectURL(file)
 
     img.onload = () => {
-      URL.revokeObjectURL(url);
+      URL.revokeObjectURL(url)
 
-      const origWidth = img.width;
-      const origHeight = img.height;
+      const origWidth = img.width
+      const origHeight = img.height
 
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
+      const canvas = document.createElement('canvas')
+      const ctx = canvas.getContext('2d')
       if (!ctx) {
-        reject(new Error('Canvas 2D context not available'));
-        return;
+        reject(new Error('Canvas 2D context not available'))
+        return
       }
 
       const tryCompress = (q: number, w: number): string => {
-        const h = w < origWidth ? Math.round((origHeight * w) / origWidth) : origHeight;
-        canvas.width = w;
-        canvas.height = h;
-        ctx.drawImage(img, 0, 0, w, h);
+        const h = w < origWidth ? Math.round((origHeight * w) / origWidth) : origHeight
+        canvas.width = w
+        canvas.height = h
+        ctx.drawImage(img, 0, 0, w, h)
 
-        const dataUrl = canvas.toDataURL('image/jpeg', q);
-        const base64 = dataUrl.replace(/^data:image\/\w+;base64,/, '');
+        const dataUrl = canvas.toDataURL('image/jpeg', q)
+        const base64 = dataUrl.replace(/^data:image\/\w+;base64,/, '')
 
         if (base64.length > 95 * 1024) {
-          if (q > 0.15) return tryCompress(Math.max(q - 0.1, 0.15), w);
-          if (w > 400) return tryCompress(0.7, Math.floor(w * 0.7));
+          if (q > 0.15) return tryCompress(Math.max(q - 0.1, 0.15), w)
+          if (w > 400) return tryCompress(0.7, Math.floor(w * 0.7))
         }
-        return base64;
-      };
+        return base64
+      }
 
-      const w = origWidth > maxWidth ? maxWidth : origWidth;
-      const data = tryCompress(quality, w);
-      const name = file.name.replace(/\.[^.]+$/, '') + '.jpg';
+      const w = origWidth > maxWidth ? maxWidth : origWidth
+      const data = tryCompress(quality, w)
+      const name = file.name.replace(/\.[^.]+$/, '') + '.jpg'
 
-      resolve({ data, filename: name });
-    };
+      resolve({ data, filename: name })
+    }
 
     img.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error('图片加载失败'));
-    };
+      URL.revokeObjectURL(url)
+      reject(new Error('图片加载失败'))
+    }
 
-    img.src = url;
-  });
-};
+    img.src = url
+  })
+}

@@ -1,45 +1,46 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { getMyArticles, deleteArticle } from '@/services/api/articles';
-import { ElMessageBox, ElMessage } from 'element-plus';
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { getMyArticles, deleteArticle } from '@/services/api/articles'
+import { ElMessageBox, ElMessage } from 'element-plus'
+import { Loading } from '@element-plus/icons-vue'
 
-defineOptions({ name: 'MyArticlesView' });
+defineOptions({ name: 'MyArticlesView' })
 
-const router = useRouter();
+const router = useRouter()
 
-const loading = ref(true);
-const error = ref('');
-const articles = ref<API.Articles.Article[]>([]);
-const page = ref(1);
-const total = ref(0);
-const pageSize = 10;
-const deleting = ref<string | null>(null);
+const loading = ref(true)
+const error = ref('')
+const articles = ref<API.Articles.Article[]>([])
+const page = ref(1)
+const total = ref(0)
+const pageSize = 10
+const deleting = ref<string | null>(null)
 
 const fetchArticles = async () => {
-  loading.value = true;
-  error.value = '';
+  loading.value = true
+  error.value = ''
   try {
-    const res = await getMyArticles({ page: page.value, pageSize });
-    articles.value = res.records;
-    total.value = res.total;
-  } catch (e: any) {
-    error.value = e?.message || '加载失败';
+    const res = await getMyArticles({ page: page.value, pageSize })
+    articles.value = res.records
+    total.value = res.total
+  } catch (e: unknown) {
+    error.value = e instanceof Error ? e.message : '加载失败'
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 
 const onPageChange = (p: number) => {
-  page.value = p;
-  fetchArticles();
-};
+  page.value = p
+  fetchArticles()
+}
 
 const fmtDate = (ts: number) => {
-  const d = new Date(ts);
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-};
+  const d = new Date(ts)
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+}
 
 const handleDelete = async (id: string) => {
   try {
@@ -47,23 +48,23 @@ const handleDelete = async (id: string) => {
       confirmButtonText: '删除',
       cancelButtonText: '取消',
       type: 'warning',
-    });
+    })
   } catch {
-    return;
+    return
   }
-  deleting.value = id;
+  deleting.value = id
   try {
-    await deleteArticle(id);
-    articles.value = articles.value.filter((a) => a._id !== id);
-    total.value--;
-  } catch (e: any) {
-    ElMessage.error(e?.message || '删除失败');
+    await deleteArticle(id)
+    articles.value = articles.value.filter((a) => a._id !== id)
+    total.value--
+  } catch (e: unknown) {
+    ElMessage.error(e instanceof Error ? e.message : '删除失败')
   } finally {
-    deleting.value = null;
+    deleting.value = null
   }
-};
+}
 
-onMounted(fetchArticles);
+onMounted(fetchArticles)
 </script>
 
 <template>
