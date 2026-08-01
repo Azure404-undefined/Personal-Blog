@@ -69,7 +69,7 @@ const handleLogin = async () => {
 
 <style lang="scss" scoped>
 .login-page {
-  min-height: calc(100vh - 52px); // 减去 header 高度
+  min-height: calc(100vh - $header-height);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -84,22 +84,22 @@ const handleLogin = async () => {
   max-width: 90vw;
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(12px);
-  border-radius: 12px;
-  padding: 40px 32px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  border-radius: $radius-lg;
+  padding: 40px $spacing-xl;
+  box-shadow: var(--shadow-lg);
 }
 
 .login-title {
   margin: 0 0 4px;
   font-size: 24px;
   font-weight: 700;
-  color: #303133;
+  color: var(--color-text-primary);
 }
 
 .login-sub {
   margin: 0 0 28px;
   font-size: 14px;
-  color: #909399;
+  color: var(--color-text-muted);
 }
 
 .login-form {
@@ -111,6 +111,6 @@ const handleLogin = async () => {
 .login-error {
   margin: -8px 0 0;
   font-size: 13px;
-  color: #f56c6c;
+  color: var(--color-danger);
 }
 </style>

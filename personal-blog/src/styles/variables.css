@@ -1,0 +1,84 @@
+/* ═══════════════════════════════════════════════════
+   设计 Token — CSS 变量层（颜色 · 阴影）
+   运行时可变 → 暗色模式就绪
+   ═══════════════════════════════════════════════════ */
+
+:root {
+  /* ── 主色 ── */
+  --color-primary: #409eff;
+  --color-primary-hover: #337ecc;
+  --color-primary-bg: #ecf5ff;
+  --color-primary-border: #c6e2ff;
+
+  /* ── 功能色 ── */
+  --color-danger: #f56c6c;
+  --color-success: #67c23a;
+  --color-warning: #e6a23c;
+
+  /* ── 文字（Slate 冷灰） ── */
+  --color-text-primary: #1e293b;
+  --color-text-secondary: #475569;
+  --color-text-muted: #94a3b8;
+  --color-text-placeholder: #cbd5e1;
+
+  /* ── 边框 & 分割线 ── */
+  --color-border: #e2e8f0;
+  --color-border-light: #f1f5f9;
+
+  /* ── 背景 ── */
+  --color-bg-page: #f8fafc;
+  --color-bg-card: #ffffff;
+  --color-bg-hover: #f1f5f9;
+
+  /* ── 分类颜色 ── */
+  --color-cat-0: #409eff;
+  --color-cat-1: #67c23a;
+  --color-cat-2: #e6a23c;
+  --color-cat-3: #f56c6c;
+  --color-cat-4: #8e71c7;
+  --color-cat-5: #20a0ff;
+  --color-cat-6: #f06292;
+  --color-cat-7: #00bcd4;
+  --color-cat-8: #a98173;
+  --color-cat-9: #5c6bc0;
+
+  /* ── 阴影 ── */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
+  --shadow-xl: 0 12px 40px rgba(0, 0, 0, 0.1);
+
+  /* ── 覆盖 Element Plus CSS 变量 ── */
+  --el-color-primary: var(--color-primary);
+  --el-color-primary-light-3: #79bbff;
+  --el-color-primary-light-5: #a0cfff;
+  --el-color-primary-light-7: #c6e2ff;
+  --el-color-primary-light-8: #d9ecff;
+  --el-color-primary-light-9: #ecf5ff;
+  --el-color-primary-dark-2: #337ecc;
+  --el-color-danger: var(--color-danger);
+  --el-color-success: var(--color-success);
+  --el-color-warning: var(--color-warning);
+
+  --el-text-color-primary: var(--color-text-primary);
+  --el-text-color-regular: var(--color-text-secondary);
+  --el-text-color-secondary: var(--color-text-muted);
+  --el-text-color-placeholder: var(--color-text-placeholder);
+
+  --el-border-color: var(--color-border);
+  --el-border-color-light: var(--color-border-light);
+  --el-border-color-lighter: var(--color-border-light);
+
+  --el-bg-color: var(--color-bg-card);
+  --el-bg-color-page: var(--color-bg-page);
+  --el-bg-color-overlay: var(--color-bg-card);
+
+  --el-border-radius-base: 8px;
+  --el-border-radius-small: 4px;
+  --el-border-radius-round: 20px;
+}
+
+/* 暗色模式 — 架构预留（配色后续补充） */
+[data-theme='dark'] {
+  /* TODO: 暗色配色 — 后续迭代 */
+}

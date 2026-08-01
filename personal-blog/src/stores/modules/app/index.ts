@@ -7,10 +7,36 @@ export const useAppStore = defineStore('app', () => {
   const isMobile = useMediaQuery('(max-width: 768px)')
   // 控制移动端菜单的折叠状态
   const isMenuOpen = ref(false)
+  // 控制头部的显示状态
+  const setHeaderVisible = ref(true)
+
+  // ── 主题（暗色模式预留） ──
+  type Theme = 'light' | 'dark'
+  const theme = ref<Theme>((localStorage.getItem('theme') as Theme) || 'light')
+
+  const setTheme = (t: Theme) => {
+    theme.value = t
+    localStorage.setItem('theme', t)
+    document.documentElement.setAttribute('data-theme', t)
+  }
+
+  const toggleTheme = () => {
+    setTheme(theme.value === 'light' ? 'dark' : 'light')
+  }
+
+  // 初始化：同步 DOM 属性
+  if (typeof document !== 'undefined') {
+    document.documentElement.setAttribute('data-theme', theme.value)
+  }
 
   // 切换菜单展开/收起
   const toggleMenu = () => {
     isMenuOpen.value = !isMenuOpen.value
+  }
+
+  // 设置头部的显示状态
+  const setHeaderVisibility = (visible: boolean) => {
+    setHeaderVisible.value = visible
   }
 
   const closeMenu = () => {
@@ -20,7 +46,13 @@ export const useAppStore = defineStore('app', () => {
   return {
     isMobile,
     isMenuOpen,
+    setHeaderVisible,
+    setHeaderVisibility,
     toggleMenu,
     closeMenu,
+    // 主题
+    theme,
+    setTheme,
+    toggleTheme,
   }
 })

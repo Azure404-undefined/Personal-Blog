@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch, useTemplateRef } from 'vue'
 import { useAuthStore } from '@/stores/modules/auth'
 import { useAppStore } from '@/stores/modules/app'
 import { useRouter, useRoute } from 'vue-router'
 import { Search } from '@element-plus/icons-vue'
-// import { useScroll } from '@vueuse/core'
+import { useScroll } from '@vueuse/core'
 
 const authStore = useAuthStore()
 const appStore = useAppStore()
 const router = useRouter()
 const route = useRoute()
 
-// const headerRef = useTemplateRef('headerRef');
-// const { y, isScrolling, directions, arrivedState } = useScroll(headerRef);
+// const mainRef = useTemplateRef('mainRef');
+const { y, directions } = useScroll(window, { throttle: 100 });
 const searchQuery = ref('')
 const handleSearch = () => {
   const q = searchQuery.value.trim()
@@ -28,11 +28,22 @@ const handleLogout = () => {
   appStore.closeMenu()
   router.push('/')
 }
+
+watch(
+  y,
+  () => {
+    if (y.value > 52 && directions.bottom){
+      appStore.setHeaderVisibility(false)
+    } else if (directions.top) {
+      appStore.setHeaderVisibility(true)
+    }
+  }
+)
 </script>
 
 <template>
   <div class="app-layout">
-    <header class="app-header" ref="headerRef">
+    <header class="app-header" :class="{ hidden: !appStore.setHeaderVisible, background: y < 52 }">
       <div class="header-inner">
         <router-link to="/" class="logo" @click="appStore.closeMenu()"> 📝 个人博客 </router-link>
 
@@ -95,26 +106,14 @@ const handleLogout = () => {
     </header>
 
     <!-- 内容槽 —— App.vue 传入 <router-view /> -->
-    <main class="app-main">
+    <main class="app-main" ref="mainRef" >
       <slot />
     </main>
   </div>
 </template>
 
 <style lang="scss" scoped>
-// ── tokens ──
-$max-width: 1000px;
-$header-height: 52px;
-$breakpoint: 768px;
-
-$color-text: #303133;
-$color-text-secondary: #606266;
-$color-text-muted: #909399;
-$color-primary: #409eff;
-$color-primary-bg: #ecf5ff;
-$color-border: var(--el-border-color-light, #e5e5e5);
-$color-bg: #fff;
-$color-hover-bg: #f0f2f5;
+// token 来自 @/styles/tokens.scss (SCSS 变量) + variables.css (CSS 变量)
 
 // ── layout ──
 .app-layout {
@@ -124,20 +123,30 @@ $color-hover-bg: #f0f2f5;
 }
 
 .app-header {
-  border-bottom: 1px solid $color-border;
-  background: $color-bg;
-  padding: 0 16px;
-  position: sticky;
+  border-bottom: 1px solid var(--color-border);
+  background: rgba(29, 30, 31, 0.3);
+  padding: 0;
+  width: 100%;
+  position: fixed;
   top: 0;
   z-index: 100;
+  transition: transform 0.3s ease;
 
   .header-inner {
-    max-width: $max-width;
+    max-width: $max-width-content;
     margin: 0 auto;
     display: flex;
     align-items: center;
     height: $header-height;
-    gap: 24px;
+    gap: $spacing-lg;
+  }
+
+  &.hidden {
+    transform: translateY(-100%);
+  }
+
+  &.background {
+    background: transparent;
   }
 }
 
@@ -145,7 +154,7 @@ $color-hover-bg: #f0f2f5;
 .logo {
   font-size: 16px;
   font-weight: 600;
-  color: $color-text;
+  color: var(--color-text-primary);
   text-decoration: none;
   flex-shrink: 0;
 }
@@ -153,25 +162,25 @@ $color-hover-bg: #f0f2f5;
 // ── 导航链接 ──
 .nav-links {
   display: flex;
-  gap: 4px;
+  gap: $spacing-xs;
 
   a {
-    color: $color-text-secondary;
+    color: var(--color-text-secondary);
     text-decoration: none;
     font-size: 14px;
-    padding: 4px 10px;
-    border-radius: 4px;
+    padding: $spacing-xs $spacing-sm;
+    border-radius: $radius-sm;
     transition:
       color 0.2s,
       background 0.2s;
 
     &:hover {
-      color: $color-primary;
-      background: $color-primary-bg;
+      color: var(--color-primary);
+      background: var(--color-primary-bg);
     }
 
     &.active {
-      color: $color-primary;
+      color: var(--color-primary);
     }
   }
 }
@@ -186,12 +195,12 @@ $color-hover-bg: #f0f2f5;
   margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: $spacing-sm;
 }
 
 .uid {
   font-size: 13px;
-  color: $color-text-muted;
+  color: var(--color-text-muted);
 }
 
 // ── 汉堡按钮 ──
@@ -202,24 +211,20 @@ $color-hover-bg: #f0f2f5;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 4px;
+  gap: $spacing-xs;
   width: $size;
   height: $size;
   border: none;
   background: transparent;
   cursor: pointer;
   padding: 6px;
-  border-radius: 4px;
-
-  &:hover {
-    background: $color-hover-bg;
-  }
+  border-radius: $radius-sm;
 
   &-line {
     display: block;
     width: 20px;
     height: 2px;
-    background: $color-text;
+    background: var(--color-text-primary);
     border-radius: 1px;
     transition:
       transform 0.3s,
@@ -244,14 +249,15 @@ $color-hover-bg: #f0f2f5;
 // ── 内容区 ──
 .app-main {
   flex: 1;
-  max-width: $max-width;
+  max-width: $max-width-content;
   width: 100%;
   margin: 0 auto;
-  padding: 0px 16px;
+  margin-top: $header-height;
+  padding: 0;
 }
 
 // ── 移动端 ──
-@media (max-width: $breakpoint) {
+@media (max-width: $breakpoint-md) {
   .hamburger {
     display: flex;
   }
@@ -262,9 +268,9 @@ $color-hover-bg: #f0f2f5;
     left: 0;
     right: 0;
     flex-direction: column;
-    background: $color-bg;
-    padding: 8px 16px;
-    border-bottom: 1px solid $color-border;
+    background: var(--color-bg-card);
+    padding: $spacing-sm $spacing-md;
+    border-bottom: 1px solid var(--color-border);
     transform: translateY(-100%);
     opacity: 0;
     pointer-events: none;
@@ -280,7 +286,7 @@ $color-hover-bg: #f0f2f5;
     }
 
     a {
-      padding: 10px 8px;
+      padding: 10px $spacing-sm;
       font-size: 15px;
     }
   }

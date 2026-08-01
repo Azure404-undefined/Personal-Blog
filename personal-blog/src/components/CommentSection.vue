@@ -314,34 +314,34 @@ watch(
 
 <style lang="scss" scoped>
 .comment-section {
-  margin-top: 48px;
-  padding-top: 32px;
-  border-top: 1px solid #ebeef5;
+  margin-top: $spacing-2xl;
+  padding-top: $spacing-xl;
+  border-top: 1px solid var(--color-border-light);
 }
 
 .comment-title {
   margin: 0 0 20px;
   font-size: 18px;
   font-weight: 600;
-  color: #303133;
+  color: var(--color-text-primary);
 }
 
 .comment-state {
-  padding: 32px 0;
+  padding: $spacing-xl 0;
   text-align: center;
   font-size: 14px;
-  color: #909399;
+  color: var(--color-text-muted);
 }
 
 .comment-error {
-  color: #f56c6c;
+  color: var(--color-danger);
 }
 
 .comment-empty {
-  padding: 32px 0;
+  padding: $spacing-xl 0;
   text-align: center;
   font-size: 14px;
-  color: #c0c4cc;
+  color: var(--color-text-placeholder);
 }
 
 .comment-login-hint {
@@ -349,12 +349,12 @@ watch(
   align-items: center;
   justify-content: center;
   gap: 12px;
-  padding: 16px;
-  margin-bottom: 16px;
-  background: #f5f7fa;
-  border-radius: 6px;
+  padding: $spacing-md;
+  margin-bottom: $spacing-md;
+  background: var(--color-bg-hover);
+  border-radius: $radius-md;
   font-size: 14px;
-  color: #909399;
+  color: var(--color-text-muted);
 }
 
 // ---- 根评论输入 ----
@@ -367,28 +367,28 @@ watch(
   padding: 10px 12px;
   font-size: 14px;
   line-height: 1.6;
-  border: 1px solid #dcdfe6;
-  border-radius: 6px;
+  border: 1px solid var(--color-border);
+  border-radius: $radius-md;
   resize: vertical;
   outline: none;
   font-family: inherit;
-  color: #303133;
+  color: var(--color-text-primary);
   box-sizing: border-box;
 
   &:focus {
-    border-color: #409eff;
+    border-color: var(--color-primary);
   }
 
   &::placeholder {
-    color: #c0c4cc;
+    color: var(--color-text-placeholder);
   }
 }
 
 .comment-post-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
-  margin-top: 8px;
+  gap: $spacing-sm;
+  margin-top: $spacing-sm;
 }
 
 // ---- 评论列表 ----
@@ -399,7 +399,7 @@ watch(
 
 .comment-thread {
   & + & {
-    margin-top: 16px;
+    margin-top: $spacing-md;
   }
 }
 
@@ -408,7 +408,7 @@ watch(
   padding: 14px 0;
 
   & + & {
-    border-top: 1px solid #f2f3f5;
+    border-top: 1px solid var(--color-border-light);
   }
 }
 
@@ -416,32 +416,32 @@ watch(
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-bottom: 8px;
+  margin-bottom: $spacing-sm;
 }
 
 .comment-author {
   font-size: 14px;
   font-weight: 600;
-  color: #303133;
+  color: var(--color-text-primary);
 }
 
 .reply-label {
   font-size: 12px;
-  color: #909399;
+  color: var(--color-text-muted);
 }
 
 .comment-content {
   font-size: 15px;
   line-height: 1.7;
-  color: #303133;
+  color: var(--color-text-primary);
   word-break: break-word;
-  margin-bottom: 8px;
+  margin-bottom: $spacing-sm;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: $radius-sm;
   transition: background 0.15s;
 
   &:hover {
-    background: #f5f7fa;
+    background: var(--color-bg-hover);
   }
 }
 
@@ -459,25 +459,25 @@ watch(
 
 .comment-time {
   font-size: 12px;
-  color: #c0c4cc;
+  color: var(--color-text-placeholder);
 }
 
 .comment-btn {
   padding: 0;
   font-size: 12px;
-  color: #909399;
+  color: var(--color-text-muted);
   background: none;
   border: none;
   cursor: pointer;
   transition: color 0.15s;
 
   &:hover {
-    color: #409eff;
+    color: var(--color-primary);
   }
 }
 
 .comment-btn-delete:hover {
-  color: #f56c6c;
+  color: var(--color-danger);
 }
 
 .comment-right {
@@ -488,9 +488,9 @@ watch(
 .replies {
   margin-left: 48px;
   padding-left: 12px;
-  border-left: 3px solid #ebeef5;
-  background: #fafafa;
-  border-radius: 0 6px 6px 0;
+  border-left: 3px solid var(--color-border-light);
+  background: var(--color-bg-hover);
+  border-radius: 0 $radius-md $radius-md 0;
 
   .comment-item {
     padding: 12px 12px 12px 0;
@@ -504,33 +504,33 @@ watch(
 // ---- 内联回复输入框 ----
 .reply-box {
   margin-left: 48px;
-  margin-top: 8px;
-  margin-bottom: 8px;
+  margin-top: $spacing-sm;
+  margin-bottom: $spacing-sm;
 }
 
 // ---- 展开/收起 ----
 .replies-toggle {
   display: block;
   margin-left: 48px;
-  margin-top: 4px;
+  margin-top: $spacing-xs;
   padding: 0;
   font-size: 12px;
-  color: #409eff;
+  color: var(--color-primary);
   background: none;
   border: none;
   cursor: pointer;
 
   &:hover {
-    color: #337ecc;
+    color: var(--color-primary-hover);
   }
 }
 
 // ---- 响应式 ----
-@media (max-width: 768px) {
+@media (max-width: $breakpoint-md) {
   .replies,
   .reply-box,
   .replies-toggle {
-    margin-left: 24px;
+    margin-left: $spacing-lg;
   }
 }
 </style>

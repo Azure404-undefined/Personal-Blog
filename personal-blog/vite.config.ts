@@ -24,6 +24,13 @@ export default defineConfig({
     port: 3000,
     open: true,
   },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        additionalData: `@use "@/styles/tokens.scss" as *; @use "@/styles/mixins.scss" as *;`,
+      },
+    },
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

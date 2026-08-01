@@ -151,41 +151,36 @@ watch(() => route.params.id, fetchArticle)
 <style lang="scss" scoped>
 .detail-page {
   margin: 0 auto;
+  padding: 0 16px;
 }
 
 .detail-container {
   max-width: 780px;
   margin: 0 auto;
-  padding: 0 16px;
+  padding: 0 $spacing-md;
 }
 
 .state-box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  padding: 80px 0;
-  color: #909399;
+  @include state-box;
 }
 .state-text {
-  margin: 0;
-  font-size: 15px;
+  @include state-text;
 }
 .error-text {
-  color: #f56c6c;
+  @include state-error-text;
 }
 
 .detail-header {
-  margin-bottom: 32px;
+  margin-bottom: $spacing-xl;
   padding-bottom: 20px;
-  border-bottom: 1px solid #ebeef5;
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .detail-title {
   margin: 0 0 10px;
   font-size: 26px;
   font-weight: 700;
-  color: #303133;
+  color: var(--color-text-primary);
   line-height: 1.4;
 }
 
@@ -197,14 +192,11 @@ watch(() => route.params.id, fetchArticle)
   min-height: 200px;
   max-height: 400px;
   overflow: hidden;
-  margin-bottom: 24px;
+  margin-bottom: $spacing-lg;
 }
 
 .banner-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
+  @include cover-img;
 }
 
 .banner-overlay {
@@ -226,8 +218,8 @@ watch(() => route.params.id, fetchArticle)
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 0 24px;
+  gap: $spacing-sm;
+  padding: 0 $spacing-lg;
   text-align: center;
 }
 
@@ -254,28 +246,28 @@ watch(() => route.params.id, fetchArticle)
 .banner-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
-  margin-bottom: 16px;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
 }
 
 .detail-meta {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: $spacing-sm;
   font-size: 13px;
-  color: #c0c4cc;
+  color: var(--color-text-placeholder);
   margin-bottom: 12px;
 }
 
 .detail-actions {
   display: flex;
-  gap: 8px;
+  gap: $spacing-sm;
 }
 
 .detail-body {
   font-size: 16px;
   line-height: 1.8;
-  color: #303133;
+  color: var(--color-text-primary);
   word-break: break-word;
 }
 </style>

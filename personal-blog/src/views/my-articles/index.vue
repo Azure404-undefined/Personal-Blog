@@ -132,25 +132,17 @@ onMounted(fetchArticles)
 }
 
 .page-title {
-  margin: 0 0 24px;
-  font-size: 22px;
-  font-weight: 600;
+  @include page-title;
 }
 
 .state-box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  padding: 60px 0;
-  color: #909399;
+  @include state-box;
 }
 .state-text {
-  margin: 0;
-  font-size: 14px;
+  @include state-text;
 }
 .error-text {
-  color: #f56c6c;
+  @include state-error-text;
 }
 
 .article-list {
@@ -162,8 +154,8 @@ onMounted(fetchArticles)
 .article-row {
   display: flex;
   align-items: center;
-  padding: 16px 0;
-  border-bottom: 1px solid #ebeef5;
+  padding: $spacing-md 0;
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .row-main {
@@ -173,27 +165,25 @@ onMounted(fetchArticles)
 }
 
 .row-title {
-  margin: 0 0 4px;
+  margin: 0 0 $spacing-xs;
   font-size: 16px;
   font-weight: 500;
-  color: #303133;
+  color: var(--color-text-primary);
 }
 
 .row-date {
   font-size: 12px;
-  color: #c0c4cc;
+  color: var(--color-text-placeholder);
 }
 
 .row-actions {
   display: flex;
-  gap: 8px;
+  gap: $spacing-sm;
   flex-shrink: 0;
-  margin-left: 16px;
+  margin-left: $spacing-md;
 }
 
 .pagination-wrap {
-  display: flex;
-  justify-content: center;
-  margin-top: 24px;
+  @include pagination-wrap;
 }
 </style>

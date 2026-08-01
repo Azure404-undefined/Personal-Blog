@@ -327,31 +327,76 @@ const removeCover = () => {
 }
 
 .page-title {
-  margin: 0 0 24px;
-  font-size: 22px;
-  font-weight: 600;
+  @include page-title;
 }
 
 .state-box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  padding: 60px 0;
-  color: #909399;
+  @include state-box;
 }
 .state-text {
-  margin: 0;
-  font-size: 14px;
+  @include state-text;
 }
 .error-text {
-  color: #f56c6c;
+  @include state-error-text;
 }
 
 .write-form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: $spacing-md;
+}
+
+.cover-uploader {
+  margin-bottom: $spacing-xs;
+}
+
+.cover-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  height: 140px;
+  border: 2px dashed var(--color-border);
+  border-radius: $radius-md;
+  cursor: pointer;
+  color: var(--color-text-placeholder);
+  transition:
+    border-color 0.2s,
+    color 0.2s;
+  &:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+}
+
+.cover-preview {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  border-radius: $radius-md;
+  overflow: hidden;
+  cursor: pointer;
+  img {
+    @include cover-img;
+  }
+  &-overlay {
+    position: absolute;
+    top: $spacing-sm;
+    right: $spacing-sm;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  &:hover &-overlay {
+    opacity: 1;
+  }
+}
+
+.cover-error {
+  display: inline-block;
+  margin-top: $spacing-xs;
+  font-size: 13px;
+  color: var(--color-danger);
 }
 
 .cover-uploader {
@@ -413,7 +458,7 @@ const removeCover = () => {
 .editor-area {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: $spacing-md;
   min-height: 400px;
 }
 
@@ -426,16 +471,16 @@ const removeCover = () => {
 }
 
 .preview-pane {
-  background: #fff;
-  border: 1px solid #dcdfe6;
-  border-radius: 4px;
-  padding: 16px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: $radius-sm;
+  padding: $spacing-md;
   overflow-y: auto;
 }
 
 .preview-label {
   font-size: 12px;
-  color: #c0c4cc;
+  color: var(--color-text-placeholder);
   margin-bottom: 12px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -443,30 +488,30 @@ const removeCover = () => {
 
 .preview-hint {
   margin: 0;
-  color: #c0c4cc;
+  color: var(--color-text-placeholder);
   font-size: 14px;
 }
 
 .save-error {
   margin: 0;
   font-size: 13px;
-  color: #f56c6c;
+  color: var(--color-danger);
 }
 
 .editor-toolbar {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: $spacing-sm;
 }
 
 .toolbar-error {
   font-size: 13px;
-  color: #f56c6c;
+  color: var(--color-danger);
 }
 
 .form-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
+  gap: $spacing-sm;
 }
 </style>

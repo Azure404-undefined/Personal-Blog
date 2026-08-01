@@ -5,6 +5,10 @@ import { createPinia } from 'pinia'
 import 'element-plus/es/components/message/style/css'
 import 'element-plus/es/components/message-box/style/css'
 
+// 全局设计 Token & Reset
+import '@/styles/variables.css'
+import '@/styles/reset.scss'
+
 import App from './App.vue'
 import router from './router'
 

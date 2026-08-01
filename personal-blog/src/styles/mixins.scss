@@ -1,0 +1,71 @@
+// ═══════════════════════════════════════════════════
+//  设计 Token — Mixin 层（组件模式复用）
+// ═══════════════════════════════════════════════════
+
+@use 'tokens' as *;
+
+// ── 状态框（loading / error / empty） ──
+@mixin state-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 80px 0;
+  color: var(--color-text-muted);
+}
+
+@mixin state-text {
+  margin: 0;
+  font-size: 15px;
+}
+
+@mixin state-error-text {
+  color: var(--color-danger);
+}
+
+// ── 页面标题 ──
+@mixin page-title {
+  margin: 0 0 $spacing-lg;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+// ── 分页容器 ──
+@mixin pagination-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: $spacing-lg;
+}
+
+// ── 卡片基础 ──
+@mixin card-base {
+  background: var(--color-bg-card);
+  border-radius: $radius-lg;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition:
+    box-shadow 0.2s,
+    transform 0.2s;
+
+  &:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+  }
+}
+
+// ── 封面容器 ──
+@mixin cover-wrap($height: 180px) {
+  position: relative;
+  width: 100%;
+  height: $height;
+  overflow: hidden;
+  background: var(--color-bg-hover);
+}
+
+// ── 封面图片 ──
+@mixin cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}

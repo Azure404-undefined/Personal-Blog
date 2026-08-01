@@ -68,16 +68,16 @@ const excerpt = (md: string, max = 120) => {
 
 // 分类 → 稳定颜色(同一分类永远同色)
 const CATEGORY_COLORS = [
-  '#409eff',
-  '#67c23a',
-  '#e6a23c',
-  '#f56c6c',
-  '#8e71c7',
-  '#20a0ff',
-  '#f06292',
-  '#00bcd4',
-  '#a98173',
-  '#5c6bc0',
+  'var(--color-cat-0)',
+  'var(--color-cat-1)',
+  'var(--color-cat-2)',
+  'var(--color-cat-3)',
+  'var(--color-cat-4)',
+  'var(--color-cat-5)',
+  'var(--color-cat-6)',
+  'var(--color-cat-7)',
+  'var(--color-cat-8)',
+  'var(--color-cat-9)',
 ]
 
 const categoryColor = (cat: string) => {
@@ -226,32 +226,32 @@ watch(
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 16px;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
 }
 
 .cat-tag {
-  border: 1px solid #dcdfe6;
-  background: #fff;
-  color: #606266;
-  padding: 4px 14px;
-  border-radius: 20px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-card);
+  color: var(--color-text-secondary);
+  padding: $spacing-xs 14px;
+  border-radius: $radius-xl;
   font-size: 13px;
   cursor: pointer;
   transition: all 0.2s;
   &:hover {
-    color: #409eff;
-    border-color: #c6e2ff;
-    background: #ecf5ff;
+    color: var(--color-primary);
+    border-color: var(--color-primary-border);
+    background: var(--color-primary-bg);
   }
   &--active {
     color: #fff;
-    background: #409eff;
-    border-color: #409eff;
+    background: var(--color-primary);
+    border-color: var(--color-primary);
     &:hover {
       color: #fff;
-      background: #337ecc;
-      border-color: #337ecc;
+      background: var(--color-primary-hover);
+      border-color: var(--color-primary-hover);
     }
   }
 }
@@ -261,19 +261,13 @@ watch(
 }
 
 .state-box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  padding: 80px 0;
-  color: #909399;
+  @include state-box;
 }
 .state-text {
-  margin: 0;
-  font-size: 15px;
+  @include state-text;
 }
 .error-text {
-  color: #f56c6c;
+  @include state-error-text;
 }
 
 .article-list {
@@ -282,46 +276,28 @@ watch(
   gap: 20px;
 }
 
-@media (max-width: 640px) {
+@media (max-width: $breakpoint-sm) {
   .article-list {
     grid-template-columns: 1fr;
   }
 }
 
 .article-card {
-  background: #fff;
-  border-radius: 10px;
-  overflow: hidden;
-  cursor: pointer;
-  transition:
-    box-shadow 0.2s,
-    transform 0.2s;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
-  &:hover {
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    transform: translateY(-1px);
-  }
+  @include card-base;
 }
 
 .card-cover-wrap {
-  position: relative;
-  width: 100%;
-  height: 180px;
-  overflow: hidden;
-  background: #f5f7fa;
+  @include cover-wrap;
 }
 
 .card-cover-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
+  @include cover-img;
 }
 
 .card-cover-fallback {
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #e8ecf1, #f0f2f5);
+  background: linear-gradient(135deg, var(--color-border-light), var(--color-bg-hover));
 }
 
 .card-category-badge {
@@ -329,7 +305,7 @@ watch(
   top: 12px;
   left: 12px;
   padding: 3px 12px;
-  border-radius: 4px;
+  border-radius: $radius-sm;
   font-size: 12px;
   font-weight: 500;
   color: #fff;
@@ -338,21 +314,21 @@ watch(
 }
 
 .card-body {
-  padding: 18px 24px 20px;
+  padding: 18px $spacing-lg 20px;
 }
 
 .card-title {
-  margin: 0 0 8px;
+  margin: 0 0 $spacing-sm;
   font-size: 18px;
   font-weight: 600;
-  color: #303133;
+  color: var(--color-text-primary);
   line-height: 1.4;
 }
 
 .card-excerpt {
   margin: 0 0 10px;
   font-size: 14px;
-  color: #606266;
+  color: var(--color-text-secondary);
   line-height: 1.6;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -362,12 +338,10 @@ watch(
 
 .card-date {
   font-size: 12px;
-  color: #c0c4cc;
+  color: var(--color-text-placeholder);
 }
 
 .pagination-wrap {
-  display: flex;
-  justify-content: center;
-  margin-top: 24px;
+  @include pagination-wrap;
 }
 </style>
