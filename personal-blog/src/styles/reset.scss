@@ -8,3 +8,19 @@ body {
   background: var(--color-bg-page);
   color: var(--color-text-primary);
 }
+
+// ── 页面路由过渡动画 ──
+.page-enter-active,
+.page-leave-active {
+  transition: all 0.25s ease;
+}
+
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}

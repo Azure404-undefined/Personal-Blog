@@ -130,7 +130,7 @@ watch(
   position: fixed;
   top: 0;
   z-index: 100;
-  transition: transform 0.3s ease;
+  transition: transform 0.5s ease;
 
   .header-inner {
     max-width: $max-width-content;
@@ -152,7 +152,7 @@ watch(
 
 // ── logo ──
 .logo {
-  font-size: 16px;
+  font-size: $font-size-body;
   font-weight: 600;
   color: var(--color-text-primary);
   text-decoration: none;
@@ -167,7 +167,7 @@ watch(
   a {
     color: var(--color-text-secondary);
     text-decoration: none;
-    font-size: 14px;
+    font-size: $font-size-small;
     padding: $spacing-xs $spacing-sm;
     border-radius: $radius-sm;
     transition:
@@ -199,7 +199,7 @@ watch(
 }
 
 .uid {
-  font-size: 13px;
+  font-size: $font-size-small;
   color: var(--color-text-muted);
 }
 
@@ -287,7 +287,7 @@ watch(
 
     a {
       padding: 10px $spacing-sm;
-      font-size: 15px;
+      font-size: $font-size-body;
     }
   }
 }

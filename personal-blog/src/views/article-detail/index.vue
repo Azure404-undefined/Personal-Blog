@@ -7,7 +7,6 @@ import MarkdownIt from 'markdown-it'
 import SafeContent from '@/components/safeContent.vue'
 import CommentSection from '@/components/CommentSection.vue'
 import { ElMessageBox } from 'element-plus'
-import { Loading } from '@element-plus/icons-vue'
 
 defineOptions({ name: 'ArticleDetailView' })
 
@@ -83,8 +82,7 @@ watch(() => route.params.id, fetchArticle)
 <template>
   <div class="detail-page">
     <!-- loading -->
-    <div v-if="loading" class="state-box">
-      <el-icon class="is-loading" :size="28"><Loading /></el-icon>
+    <div v-if="loading" class="state-loading">
       <span>加载中...</span>
     </div>
 
@@ -151,7 +149,7 @@ watch(() => route.params.id, fetchArticle)
 <style lang="scss" scoped>
 .detail-page {
   margin: 0 auto;
-  padding: 0 16px;
+  padding: 0 $spacing-md;
 }
 
 .detail-container {
@@ -162,6 +160,10 @@ watch(() => route.params.id, fetchArticle)
 
 .state-box {
   @include state-box;
+}
+
+.state-loading {
+  @include state-spinner;
 }
 .state-text {
   @include state-text;
@@ -178,7 +180,7 @@ watch(() => route.params.id, fetchArticle)
 
 .detail-title {
   margin: 0 0 10px;
-  font-size: 26px;
+  font-size: $font-size-h1;
   font-weight: 700;
   color: var(--color-text-primary);
   line-height: 1.4;
@@ -231,7 +233,7 @@ watch(() => route.params.id, fetchArticle)
 
 .banner-title {
   margin: 0;
-  font-size: 32px;
+  font-size: $font-size-display;
   font-weight: 700;
   color: #fff;
   line-height: 1.4;
@@ -239,7 +241,7 @@ watch(() => route.params.id, fetchArticle)
 }
 
 .banner-date {
-  font-size: 13px;
+  font-size: $font-size-small;
   color: rgba(255, 255, 255, 0.85);
 }
 
@@ -254,7 +256,7 @@ watch(() => route.params.id, fetchArticle)
   display: flex;
   align-items: center;
   gap: $spacing-sm;
-  font-size: 13px;
+  font-size: $font-size-small;
   color: var(--color-text-placeholder);
   margin-bottom: 12px;
 }
@@ -265,7 +267,8 @@ watch(() => route.params.id, fetchArticle)
 }
 
 .detail-body {
-  font-size: 16px;
+  @include reveal;
+  font-size: $font-size-body;
   line-height: 1.8;
   color: var(--color-text-primary);
   word-break: break-word;

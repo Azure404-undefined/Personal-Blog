@@ -9,7 +9,7 @@ import {
 } from '@/services/api/articles'
 import { uploadImage } from '@/services/api/upload'
 import { ElMessage } from 'element-plus'
-import { Picture, Plus, Delete, Loading } from '@element-plus/icons-vue'
+import { Picture, Plus, Delete } from '@element-plus/icons-vue'
 import { useAuthStore } from '@/stores/modules/auth'
 import MarkdownIt from 'markdown-it'
 import SafeContent from '@/components/safeContent.vue'
@@ -219,9 +219,8 @@ const removeCover = () => {
   <div class="write-page">
     <h1 class="page-title">{{ isEdit ? '编辑文章' : '写文章' }}</h1>
 
-    <!-- Loading / Error for edit fetch -->
-    <div v-if="loadingArticle" class="state-box">
-      <el-icon class="is-loading" :size="24"><Loading /></el-icon>
+    <!-- 编辑文章加载 -->
+    <div v-if="loadingArticle" class="state-loading">
       <span>加载中...</span>
     </div>
 
@@ -324,6 +323,7 @@ const removeCover = () => {
 .write-page {
   max-width: 960px;
   margin: 0 auto;
+  padding: 0 $spacing-md;
 }
 
 .page-title {
@@ -332,6 +332,10 @@ const removeCover = () => {
 
 .state-box {
   @include state-box;
+}
+
+.state-loading {
+  @include state-spinner;
 }
 .state-text {
   @include state-text;
@@ -395,64 +399,8 @@ const removeCover = () => {
 .cover-error {
   display: inline-block;
   margin-top: $spacing-xs;
-  font-size: 13px;
+  font-size: $font-size-small;
   color: var(--color-danger);
-}
-
-.cover-uploader {
-  margin-bottom: 4px;
-}
-
-.cover-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  height: 140px;
-  border: 2px dashed #dcdfe6;
-  border-radius: 6px;
-  cursor: pointer;
-  color: #c0c4cc;
-  transition:
-    border-color 0.2s,
-    color 0.2s;
-  &:hover {
-    border-color: #409eff;
-    color: #409eff;
-  }
-}
-
-.cover-preview {
-  position: relative;
-  width: 100%;
-  height: 180px;
-  border-radius: 6px;
-  overflow: hidden;
-  cursor: pointer;
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-  &-overlay {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    opacity: 0;
-    transition: opacity 0.2s;
-  }
-  &:hover &-overlay {
-    opacity: 1;
-  }
-}
-
-.cover-error {
-  display: inline-block;
-  margin-top: 4px;
-  font-size: 13px;
-  color: #f56c6c;
 }
 
 .editor-area {
@@ -479,7 +427,7 @@ const removeCover = () => {
 }
 
 .preview-label {
-  font-size: 12px;
+  font-size: $font-size-small;
   color: var(--color-text-placeholder);
   margin-bottom: 12px;
   text-transform: uppercase;
@@ -489,12 +437,12 @@ const removeCover = () => {
 .preview-hint {
   margin: 0;
   color: var(--color-text-placeholder);
-  font-size: 14px;
+  font-size: $font-size-small;
 }
 
 .save-error {
   margin: 0;
-  font-size: 13px;
+  font-size: $font-size-small;
   color: var(--color-danger);
 }
 
@@ -505,7 +453,7 @@ const removeCover = () => {
 }
 
 .toolbar-error {
-  font-size: 13px;
+  font-size: $font-size-small;
   color: var(--color-danger);
 }
 

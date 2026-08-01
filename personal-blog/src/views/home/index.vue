@@ -2,7 +2,6 @@
 import { ref, watch, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { getArticles, getCategories } from '@/services/api/articles'
-import { Loading } from '@element-plus/icons-vue'
 
 defineOptions({ name: 'HomeView' })
 
@@ -152,10 +151,16 @@ watch(
       </el-select>
     </div>
 
-    <!-- loading -->
-    <div v-if="loading" class="state-box">
-      <el-icon class="is-loading" :size="28"><Loading /></el-icon>
-      <span>加载中...</span>
+    <!-- loading: 骨架屏 -->
+    <div v-if="loading" class="skeleton-grid">
+      <div v-for="n in 4" :key="n" class="skeleton-card">
+        <div class="skeleton-cover" />
+        <div class="skeleton-body">
+          <div class="skeleton-line" style="width:80%" />
+          <div class="skeleton-line" style="width:60%" />
+          <div class="skeleton-line" style="width:40%" />
+        </div>
+      </div>
     </div>
 
     <!-- error -->
@@ -220,6 +225,7 @@ watch(
 .home-page {
   max-width: 720px;
   margin: 0 auto;
+  padding: 0 $spacing-md;
 }
 
 .filter-bar {
@@ -236,7 +242,7 @@ watch(
   color: var(--color-text-secondary);
   padding: $spacing-xs 14px;
   border-radius: $radius-xl;
-  font-size: 13px;
+  font-size: $font-size-small;
   cursor: pointer;
   transition: all 0.2s;
   &:hover {
@@ -273,7 +279,7 @@ watch(
 .article-list {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: $spacing-lg;
 }
 
 @media (max-width: $breakpoint-sm) {
@@ -284,6 +290,8 @@ watch(
 
 .article-card {
   @include card-base;
+  @include reveal;
+  cursor: pointer;
 }
 
 .card-cover-wrap {
@@ -306,7 +314,7 @@ watch(
   left: 12px;
   padding: 3px 12px;
   border-radius: $radius-sm;
-  font-size: 12px;
+  font-size: $font-size-small;
   font-weight: 500;
   color: #fff;
   line-height: 1.6;
@@ -314,12 +322,12 @@ watch(
 }
 
 .card-body {
-  padding: 18px $spacing-lg 20px;
+  padding: $spacing-lg;
 }
 
 .card-title {
   margin: 0 0 $spacing-sm;
-  font-size: 18px;
+  font-size: $font-size-h2;
   font-weight: 600;
   color: var(--color-text-primary);
   line-height: 1.4;
@@ -327,7 +335,7 @@ watch(
 
 .card-excerpt {
   margin: 0 0 10px;
-  font-size: 14px;
+  font-size: $font-size-small;
   color: var(--color-text-secondary);
   line-height: 1.6;
   display: -webkit-box;
@@ -337,11 +345,40 @@ watch(
 }
 
 .card-date {
-  font-size: 12px;
+  font-size: $font-size-small;
   color: var(--color-text-placeholder);
 }
 
 .pagination-wrap {
   @include pagination-wrap;
+}
+
+// ── 骨架屏 ──
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-lg;
+
+  @media (max-width: $breakpoint-sm) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.skeleton-card {
+  background: var(--color-bg-card);
+  border-radius: $radius-lg;
+  overflow: hidden;
+}
+
+.skeleton-cover {
+  @include skeleton-cover;
+}
+
+.skeleton-body {
+  padding: $spacing-lg;
+}
+
+.skeleton-line {
+  @include skeleton-line;
 }
 </style>

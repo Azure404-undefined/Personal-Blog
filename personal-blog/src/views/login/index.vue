@@ -91,14 +91,14 @@ const handleLogin = async () => {
 
 .login-title {
   margin: 0 0 4px;
-  font-size: 24px;
+  font-size: $font-size-h1;
   font-weight: 700;
   color: var(--color-text-primary);
 }
 
 .login-sub {
   margin: 0 0 28px;
-  font-size: 14px;
+  font-size: $font-size-small;
   color: var(--color-text-muted);
 }
 
@@ -110,7 +110,7 @@ const handleLogin = async () => {
 
 .login-error {
   margin: -8px 0 0;
-  font-size: 13px;
+  font-size: $font-size-small;
   color: var(--color-danger);
 }
 </style>

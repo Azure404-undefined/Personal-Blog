@@ -16,7 +16,7 @@
 
 @mixin state-text {
   margin: 0;
-  font-size: 15px;
+  font-size: $font-size-body;
 }
 
 @mixin state-error-text {
@@ -26,7 +26,7 @@
 // ── 页面标题 ──
 @mixin page-title {
   margin: 0 0 $spacing-lg;
-  font-size: 22px;
+  font-size: $font-size-h2;
   font-weight: 600;
 }
 
@@ -68,4 +68,79 @@
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+// ── 滚动入场（CSS Scroll-Driven，Firefox 优雅降级为直接显示） ──
+@mixin reveal {
+  @supports (animation-timeline: view()) {
+    animation: reveal 0.5s ease both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 100%;
+  }
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ── 骨架屏动画 ──
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+@keyframes skeleton-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// ── 骨架屏通用原子样式 ──
+@mixin skeleton-cover($height: 180px) {
+  height: $height;
+  background: var(--color-border-light);
+  border-radius: $radius-lg $radius-lg 0 0;
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+@mixin skeleton-line($width: 100%, $delay: 0s) {
+  height: 14px;
+  width: $width;
+  background: var(--color-border-light);
+  border-radius: 4px;
+  margin-bottom: 8px;
+  animation: skeleton-pulse 1.5s ease-in-out $delay infinite;
+}
+
+// ── 加载 spinner（替代 el-icon Loading） ──
+@mixin state-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 80px 0;
+  color: var(--color-text-muted);
+
+  &::before {
+    content: '';
+    display: block;
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--color-border);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: skeleton-spin 0.8s linear infinite;
+  }
 }

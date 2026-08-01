@@ -3,7 +3,6 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getMyArticles, deleteArticle } from '@/services/api/articles'
 import { ElMessageBox, ElMessage } from 'element-plus'
-import { Loading } from '@element-plus/icons-vue'
 
 defineOptions({ name: 'MyArticlesView' })
 
@@ -71,10 +70,12 @@ onMounted(fetchArticles)
   <div class="my-page">
     <h1 class="page-title">我的文章</h1>
 
-    <!-- loading -->
-    <div v-if="loading" class="state-box">
-      <el-icon class="is-loading" :size="24"><Loading /></el-icon>
-      <span>加载中...</span>
+    <!-- loading: 骨架屏 -->
+    <div v-if="loading" class="skeleton-list">
+      <div v-for="n in 4" :key="n" class="skeleton-row">
+        <div class="skeleton-line" style="width:60%;animation-delay:0s" />
+        <div class="skeleton-line" style="width:20%;animation-delay:0.1s;margin-left:auto" />
+      </div>
     </div>
 
     <!-- error -->
@@ -129,6 +130,7 @@ onMounted(fetchArticles)
 .my-page {
   max-width: 800px;
   margin: 0 auto;
+  padding: 0 $spacing-md;
 }
 
 .page-title {
@@ -152,6 +154,7 @@ onMounted(fetchArticles)
 }
 
 .article-row {
+  @include reveal;
   display: flex;
   align-items: center;
   padding: $spacing-md 0;
@@ -166,13 +169,13 @@ onMounted(fetchArticles)
 
 .row-title {
   margin: 0 0 $spacing-xs;
-  font-size: 16px;
+  font-size: $font-size-body;
   font-weight: 500;
   color: var(--color-text-primary);
 }
 
 .row-date {
-  font-size: 12px;
+  font-size: $font-size-small;
   color: var(--color-text-placeholder);
 }
 
@@ -185,5 +188,24 @@ onMounted(fetchArticles)
 
 .pagination-wrap {
   @include pagination-wrap;
+}
+
+// ── 骨架屏 ──
+.skeleton-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-md 0;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.skeleton-line {
+  @include skeleton-line(100%);
+  margin-bottom: 0;
 }
 </style>

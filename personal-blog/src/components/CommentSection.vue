@@ -176,7 +176,10 @@ watch(
     <h3 class="comment-title">评论 ({{ commentCount }})</h3>
 
     <!-- 加载 / 错误 / 空态 -->
-    <div v-if="loading" class="comment-state">加载中...</div>
+    <div v-if="loading" class="comment-state">
+      <div class="comment-spinner" />
+      <span>加载中...</span>
+    </div>
     <div v-else-if="error" class="comment-state comment-error">{{ error }}</div>
     <div v-else-if="!treeComments.length" class="comment-empty">暂无评论，来说点什么吧</div>
 
@@ -321,7 +324,7 @@ watch(
 
 .comment-title {
   margin: 0 0 20px;
-  font-size: 18px;
+  font-size: $font-size-body;
   font-weight: 600;
   color: var(--color-text-primary);
 }
@@ -329,8 +332,18 @@ watch(
 .comment-state {
   padding: $spacing-xl 0;
   text-align: center;
-  font-size: 14px;
+  font-size: $font-size-small;
   color: var(--color-text-muted);
+}
+
+.comment-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: skeleton-spin 0.8s linear infinite;
+  margin: 0 auto 8px;
 }
 
 .comment-error {
@@ -340,7 +353,7 @@ watch(
 .comment-empty {
   padding: $spacing-xl 0;
   text-align: center;
-  font-size: 14px;
+  font-size: $font-size-small;
   color: var(--color-text-placeholder);
 }
 
@@ -353,7 +366,7 @@ watch(
   margin-bottom: $spacing-md;
   background: var(--color-bg-hover);
   border-radius: $radius-md;
-  font-size: 14px;
+  font-size: $font-size-small;
   color: var(--color-text-muted);
 }
 
@@ -365,7 +378,7 @@ watch(
 .comment-textarea {
   width: 100%;
   padding: 10px 12px;
-  font-size: 14px;
+  font-size: $font-size-small;
   line-height: 1.6;
   border: 1px solid var(--color-border);
   border-radius: $radius-md;
@@ -398,6 +411,8 @@ watch(
 }
 
 .comment-thread {
+  @include reveal;
+
   & + & {
     margin-top: $spacing-md;
   }
@@ -420,18 +435,18 @@ watch(
 }
 
 .comment-author {
-  font-size: 14px;
+  font-size: $font-size-small;
   font-weight: 600;
   color: var(--color-text-primary);
 }
 
 .reply-label {
-  font-size: 12px;
+  font-size: $font-size-small;
   color: var(--color-text-muted);
 }
 
 .comment-content {
-  font-size: 15px;
+  font-size: $font-size-body;
   line-height: 1.7;
   color: var(--color-text-primary);
   word-break: break-word;
@@ -458,13 +473,13 @@ watch(
 }
 
 .comment-time {
-  font-size: 12px;
+  font-size: $font-size-small;
   color: var(--color-text-placeholder);
 }
 
 .comment-btn {
   padding: 0;
-  font-size: 12px;
+  font-size: $font-size-small;
   color: var(--color-text-muted);
   background: none;
   border: none;
@@ -514,7 +529,7 @@ watch(
   margin-left: 48px;
   margin-top: $spacing-xs;
   padding: 0;
-  font-size: 12px;
+  font-size: $font-size-small;
   color: var(--color-primary);
   background: none;
   border: none;
