@@ -43,6 +43,16 @@ export const useAppStore = defineStore('app', () => {
     isMenuOpen.value = false
   }
 
+  // ── 搜索弹窗 ──
+  const showSearchModal = ref(false)
+
+  const openSearchModal = () => {
+    showSearchModal.value = true
+  }
+  const closeSearchModal = () => {
+    showSearchModal.value = false
+  }
+
   // ── 登录弹窗 ──
   const showLoginModal = ref(false)
 
@@ -64,6 +74,10 @@ export const useAppStore = defineStore('app', () => {
     theme,
     setTheme,
     toggleTheme,
+    // 搜索弹窗
+    showSearchModal,
+    openSearchModal,
+    closeSearchModal,
     // 登录弹窗
     showLoginModal,
     openLoginModal,

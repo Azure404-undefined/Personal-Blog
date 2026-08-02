@@ -3,6 +3,8 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getArticleById, deleteArticle } from '@/services/api/articles'
 import { useAuthStore } from '@/stores/modules/auth'
+import { fmtDate } from '@/utils/date'
+import { coverUrl } from '@/utils/image'
 import MarkdownIt from 'markdown-it'
 import SafeContent from '@/components/safeContent.vue'
 import CommentSection from '@/components/CommentSection.vue'
@@ -39,19 +41,6 @@ const fetchArticle = async () => {
   } finally {
     loading.value = false
   }
-}
-
-const fmtDate = (ts: number) => {
-  const d = new Date(ts)
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
-}
-
-// 封面 URL: 兼容 BFF 代理相对路径 /files/... 与绝对 http 地址
-const BFF = import.meta.env.VITE_BFF_URL
-const coverUrl = (cover?: string) => {
-  if (!cover) return ''
-  return cover.startsWith('http') ? cover : BFF + cover
 }
 
 const handleDelete = async () => {

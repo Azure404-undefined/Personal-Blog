@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { ref, watch, useTemplateRef } from 'vue'
+import { watch, useTemplateRef } from 'vue'
 import { useAuthStore } from '@/stores/modules/auth'
 import { useAppStore } from '@/stores/modules/app'
 import { useRouter, useRoute } from 'vue-router'
-import { Search } from '@element-plus/icons-vue'
 import { useScroll } from '@vueuse/core'
 import LoginModal from '@/components/LoginModal.vue'
+import SearchModal from '@/components/SearchModal.vue'
+import BackToTop from '@/components/BackToTop.vue'
 
 const authStore = useAuthStore()
 const appStore = useAppStore()
@@ -14,16 +15,6 @@ const route = useRoute()
 
 // const mainRef = useTemplateRef('mainRef');
 const { y, directions } = useScroll(window, { throttle: 100 });
-const searchQuery = ref('')
-const handleSearch = () => {
-  const q = searchQuery.value.trim()
-  if (q) {
-    router.push({ path: '/', query: { q } })
-  } else {
-    router.push('/')
-  }
-}
-
 const handleLogout = () => {
   authStore.clearLocalToken()
   appStore.closeMenu()
@@ -67,20 +58,11 @@ watch(
           >
         </nav>
 
-        <div class="search-box">
-          <el-input
-            v-model="searchQuery"
-            placeholder="搜索文章..."
-            size="small"
-            clearable
-            @keyup.enter="handleSearch"
-            @clear="handleSearch"
-          >
-            <template #prefix>
-              <el-icon><Search /></el-icon>
-            </template>
-          </el-input>
-        </div>
+        <button class="search-trigger" @click="appStore.openSearchModal()">
+          <span>🔍</span>
+          <span class="search-trigger-text">搜索...</span>
+          <kbd>Ctrl+K</kbd>
+        </button>
 
         <div class="user-area">
           <template v-if="authStore.isLogin">
@@ -112,6 +94,8 @@ watch(
     </main>
 
     <LoginModal />
+    <SearchModal />
+    <BackToTop />
   </div>
 </template>
 
@@ -188,9 +172,37 @@ watch(
   }
 }
 
-// ── 搜索框 ──
-.search-box {
-  width: 200px;
+// ── 搜索触发按钮 ──
+.search-trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: $radius-md;
+  background: var(--color-bg-card);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--color-text-placeholder);
+  transition:
+    border-color 0.15s,
+    color 0.15s;
+
+  kbd {
+    padding: 2px 6px;
+    background: var(--color-bg-hover);
+    border-radius: 3px;
+    font-size: 11px;
+    font-family: monospace;
+    color: var(--color-text-muted);
+    margin-left: 4px;
+  }
+
+  &:hover {
+    border-color: var(--color-primary);
+    color: var(--color-text-secondary);
+  }
 }
 
 // ── 用户区 ──

@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { getComments, createComment, deleteComment } from '@/services/api/comments'
 import { useAuthStore } from '@/stores/modules/auth'
 import { ElMessageBox, ElMessage } from 'element-plus'
+import { fmtDate } from '@/utils/date'
 
 const REPLIES_PREVIEW = 2
 
@@ -45,14 +46,6 @@ const treeComments = computed<API.Comments.TreeComment[]>(() => {
 const commentCount = computed(() => comments.value.length)
 
 // ---- methods ----
-const fmtDate = (ts: number) => {
-  const d = new Date(ts)
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(
-    d.getHours(),
-  )}:${pad(d.getMinutes())}`
-}
-
 const fetchComments = async () => {
   loading.value = true
   error.value = ''
@@ -222,7 +215,7 @@ watch(
           <div class="comment-content" @click="openReply(root._id)">{{ root.content }}</div>
           <div class="comment-bottom">
             <div class="comment-left">
-              <time class="comment-time">{{ fmtDate(root.createdAt) }}</time>
+              <time class="comment-time">{{ fmtDate(root.createdAt, true) }}</time>
               <button
                 v-if="authStore.isLogin"
                 class="comment-btn comment-btn-reply"
@@ -258,7 +251,7 @@ watch(
             </div>
             <div class="comment-bottom">
               <div class="comment-left">
-                <time class="comment-time">{{ fmtDate(reply.createdAt) }}</time>
+                <time class="comment-time">{{ fmtDate(reply.createdAt, true) }}</time>
                 <button
                   v-if="authStore.isLogin"
                   class="comment-btn comment-btn-reply"

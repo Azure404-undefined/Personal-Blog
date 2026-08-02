@@ -2,6 +2,8 @@
 import { ref, watch, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { getArticles, getCategories } from '@/services/api/articles'
+import { fmtDate } from '@/utils/date'
+import { coverUrl } from '@/utils/image'
 
 defineOptions({ name: 'HomeView' })
 
@@ -51,12 +53,6 @@ const onPageChange = (p: number) => {
   fetchArticles()
 }
 
-const fmtDate = (ts: number) => {
-  const d = new Date(ts)
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
-}
-
 const excerpt = (md: string, max = 120) => {
   const text = md
     .replace(/[#*>`[\]()!_~]/g, '')
@@ -85,13 +81,6 @@ const categoryColor = (cat: string) => {
     hash = cat.charCodeAt(i) + ((hash << 5) - hash)
   }
   return CATEGORY_COLORS[Math.abs(hash) % CATEGORY_COLORS.length]
-}
-
-// 封面 URL: 兼容 BFF 代理相对路径 /files/... 与绝对 http 地址
-const BFF = import.meta.env.VITE_BFF_URL
-const coverUrl = (cover?: string) => {
-  if (!cover) return ''
-  return cover.startsWith('http') ? cover : BFF + cover
 }
 
 onMounted(() => {

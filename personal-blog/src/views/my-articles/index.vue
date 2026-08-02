@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getMyArticles, deleteArticle } from '@/services/api/articles'
 import { ElMessageBox, ElMessage } from 'element-plus'
+import { fmtDate } from '@/utils/date'
 
 defineOptions({ name: 'MyArticlesView' })
 
@@ -33,12 +34,6 @@ const fetchArticles = async () => {
 const onPageChange = (p: number) => {
   page.value = p
   fetchArticles()
-}
-
-const fmtDate = (ts: number) => {
-  const d = new Date(ts)
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 }
 
 const handleDelete = async (id: string) => {
