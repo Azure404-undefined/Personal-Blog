@@ -9,7 +9,7 @@ import {
 } from '@/services/api/articles'
 import { uploadImage } from '@/services/api/upload'
 import { ElMessage } from 'element-plus'
-import { Picture, Plus, Delete } from '@element-plus/icons-vue'
+import { Picture, Delete } from '@element-plus/icons-vue'
 import { useAuthStore } from '@/stores/modules/auth'
 import MarkdownIt from 'markdown-it'
 import SafeContent from '@/components/safeContent.vue'
@@ -243,8 +243,9 @@ const removeCover = () => {
           @change="handleCoverChange"
         />
         <div v-if="!coverImageUrl" class="cover-placeholder" @click="triggerCoverPicker">
-          <el-icon :size="32"><Plus /></el-icon>
-          <span>{{ coverUploading ? '上传中...' : '上传封面图片（可选）' }}</span>
+          <span class="placeholder-icon">📷</span>
+          <span>{{ coverUploading ? '上传中...' : '点击上传封面图片' }}</span>
+          <span class="placeholder-hint">支持 JPG / PNG / WebP，最大 5MB</span>
         </div>
         <div v-else class="cover-preview" @click="triggerCoverPicker">
           <img :src="coverImageUrl" alt="封面预览" />
@@ -359,18 +360,34 @@ const removeCover = () => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: $spacing-sm;
+  gap: 6px;
   height: 140px;
   border: 2px dashed var(--color-border);
   border-radius: $radius-md;
   cursor: pointer;
-  color: var(--color-text-placeholder);
+  color: var(--color-text-muted);
+  background: linear-gradient(to bottom, var(--color-bg-page), var(--color-bg-card));
   transition:
     border-color 0.2s,
-    color 0.2s;
+    color 0.2s,
+    background 0.2s;
+  font-size: 13px;
+
+  .placeholder-icon {
+    font-size: 28px;
+    color: var(--color-primary);
+    margin-bottom: 2px;
+  }
+
+  .placeholder-hint {
+    font-size: 11px;
+    color: var(--color-text-placeholder);
+  }
+
   &:hover {
     border-color: var(--color-primary);
     color: var(--color-primary);
+    background: linear-gradient(to bottom, var(--color-primary-bg), var(--color-bg-card));
   }
 }
 
@@ -413,17 +430,18 @@ const removeCover = () => {
 .editor-pane {
   :deep(textarea) {
     font-family: 'Fira Code', 'Cascadia Code', monospace;
-    font-size: 14px;
-    line-height: 1.7;
+    font-size: 15px;
+    line-height: 1.8;
   }
 }
 
 .preview-pane {
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
-  border-radius: $radius-sm;
+  border-radius: $radius-md;
   padding: $spacing-md;
   overflow-y: auto;
+  box-shadow: var(--shadow-sm);
 }
 
 .preview-label {
@@ -461,5 +479,7 @@ const removeCover = () => {
   display: flex;
   justify-content: flex-end;
   gap: $spacing-sm;
+  padding-top: $spacing-md;
+  border-top: 1px solid var(--color-border-light);
 }
 </style>

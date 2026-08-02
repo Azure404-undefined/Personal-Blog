@@ -20,6 +20,8 @@ declare module 'vue' {
     ElPagination: typeof import('element-plus/es')['ElPagination']
     ElSelect: typeof import('element-plus/es')['ElSelect']
     ElTag: typeof import('element-plus/es')['ElTag']
+    LoginForm: typeof import('./src/components/LoginForm.vue')['default']
+    LoginModal: typeof import('./src/components/LoginModal.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SafeContent: typeof import('./src/components/safeContent.vue')['default']

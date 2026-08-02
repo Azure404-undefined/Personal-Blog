@@ -43,6 +43,16 @@ export const useAppStore = defineStore('app', () => {
     isMenuOpen.value = false
   }
 
+  // ── 登录弹窗 ──
+  const showLoginModal = ref(false)
+
+  const openLoginModal = () => {
+    showLoginModal.value = true
+  }
+  const closeLoginModal = () => {
+    showLoginModal.value = false
+  }
+
   return {
     isMobile,
     isMenuOpen,
@@ -54,5 +64,9 @@ export const useAppStore = defineStore('app', () => {
     theme,
     setTheme,
     toggleTheme,
+    // 登录弹窗
+    showLoginModal,
+    openLoginModal,
+    closeLoginModal,
   }
 })

@@ -5,6 +5,7 @@ import { useAppStore } from '@/stores/modules/app'
 import { useRouter, useRoute } from 'vue-router'
 import { Search } from '@element-plus/icons-vue'
 import { useScroll } from '@vueuse/core'
+import LoginModal from '@/components/LoginModal.vue'
 
 const authStore = useAuthStore()
 const appStore = useAppStore()
@@ -86,7 +87,7 @@ watch(
             <span class="uid">{{ authStore.username }}</span>
             <el-button text size="small" @click="handleLogout">登出</el-button>
           </template>
-          <el-button v-else size="small" type="primary" @click="router.push('/login')">
+          <el-button v-else size="small" type="primary" @click="appStore.openLoginModal()">
             登录
           </el-button>
 
@@ -109,6 +110,8 @@ watch(
     <main class="app-main" ref="mainRef" >
       <slot />
     </main>
+
+    <LoginModal />
   </div>
 </template>
 

@@ -24,3 +24,44 @@ body {
   opacity: 0;
   transform: translateY(-8px);
 }
+
+// ── 全局细节 ──
+
+// 文本选中色
+::selection {
+  background: rgba(64, 158, 255, 0.25);
+  color: inherit;
+}
+
+// Focus ring（排除 Element Plus 组件，避免冲突）
+a:focus-visible,
+button:not([class*='el-']):focus-visible,
+input:not([class*='el-']):focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+// 滚动条 (Webkit)
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+
+  &:hover {
+    background: #94a3b8;
+  }
+}
+
+// 图片默认圆角
+img {
+  border-radius: $radius-md;
+}
