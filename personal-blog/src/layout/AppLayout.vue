@@ -4,6 +4,7 @@ import { useAuthStore } from '@/stores/modules/auth'
 import { useAppStore } from '@/stores/modules/app'
 import { useRouter, useRoute } from 'vue-router'
 import { useScroll } from '@vueuse/core'
+import { Search, Sunny, Moon } from '@element-plus/icons-vue'
 import LoginModal from '@/components/LoginModal.vue'
 import SearchModal from '@/components/SearchModal.vue'
 import BackToTop from '@/components/BackToTop.vue'
@@ -75,8 +76,19 @@ watch(
           >
         </nav>
 
+        <button
+          class="theme-switch"
+          :class="{ 'is-dark': appStore.isDark }"
+          @click="appStore.toggleTheme()"
+          :aria-label="appStore.isDark ? '切换到亮色模式' : '切换到暗色模式'"
+        >
+          <el-icon class="theme-switch-icon theme-switch-icon--moon"><Moon /></el-icon>
+          <el-icon class="theme-switch-icon theme-switch-icon--sun"><Sunny /></el-icon>
+          <span class="theme-switch-knob" />
+        </button>
+
         <button class="search-trigger" @click="appStore.openSearchModal()">
-          <span>🔍</span>
+          <el-icon :size="15"><Search /></el-icon>
           <span class="search-trigger-text">搜索...</span>
           <kbd>Ctrl+K</kbd>
         </button>
@@ -187,6 +199,56 @@ watch(
       color: var(--color-primary-hover);
     }
   }
+}
+
+.theme-switch {
+  position: relative;
+  width: 48px;
+  height: 26px;
+  border: none;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+
+  &.is-dark {
+    background: rgba(96, 165, 250, 0.2);
+  }
+}
+
+.theme-switch-icon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  pointer-events: none;
+
+  &--moon {
+    left: 5px;
+    color: #e2e8f0;
+  }
+
+  &--sun {
+    right: 5px;
+    color: #fbbf24;
+  }
+}
+
+.theme-switch-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.3s ease;
+  pointer-events: none;
+}
+
+.theme-switch.is-dark .theme-switch-knob {
+  transform: translateX(22px);
 }
 
 .search-trigger {

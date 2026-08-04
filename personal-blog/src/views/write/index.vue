@@ -9,7 +9,7 @@ import {
 } from '@/services/api/articles'
 import { uploadImage } from '@/services/api/upload'
 import { ElMessage } from 'element-plus'
-import { Picture, Delete } from '@element-plus/icons-vue'
+import { Picture, PictureFilled, Delete } from '@element-plus/icons-vue'
 import { useAuthStore } from '@/stores/modules/auth'
 import MarkdownIt from 'markdown-it'
 import SafeContent from '@/components/safeContent.vue'
@@ -244,7 +244,7 @@ const removeCover = () => {
           @change="handleCoverChange"
         />
         <div v-if="!coverImageUrl" class="cover-placeholder" @click="triggerCoverPicker">
-          <span class="placeholder-icon">📷</span>
+          <span class="placeholder-icon"><el-icon :size="28"><PictureFilled /></el-icon></span>
           <span>{{ coverUploading ? '上传中...' : '点击上传封面图片' }}</span>
           <span class="placeholder-hint">支持 JPG / PNG / WebP，最大 5MB</span>
         </div>

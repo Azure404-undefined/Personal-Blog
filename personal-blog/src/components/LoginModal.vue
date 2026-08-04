@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { watch } from 'vue'
 import { useAppStore } from '@/stores/modules/app'
+import { Close } from '@element-plus/icons-vue'
 import LoginForm from './LoginForm.vue'
 
 defineOptions({ name: 'LoginModal' })
@@ -30,7 +31,7 @@ const onLoginSuccess = () => {
       <div v-if="appStore.showLoginModal" class="modal-overlay" @click.self="close">
         <div class="modal-card">
           <button class="modal-close" @click="close" aria-label="关闭">
-            <span>✕</span>
+            <el-icon :size="14"><Close /></el-icon>
           </button>
           <LoginForm @success="onLoginSuccess" />
         </div>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useScroll } from '@vueuse/core'
+import { ArrowUp } from '@element-plus/icons-vue'
 
 defineOptions({ name: 'BackToTop' })
 
@@ -16,7 +17,7 @@ const scrollToTop = () => {
 <template>
   <transition name="btp">
     <button v-if="visible" class="back-to-top" @click="scrollToTop" aria-label="回到顶部">
-      <span>↑</span>
+      <el-icon :size="18"><ArrowUp /></el-icon>
     </button>
   </transition>
 </template>

@@ -78,7 +78,70 @@
   --el-border-radius-round: 20px;
 }
 
-/* 暗色模式 — 架构预留（配色后续补充） */
+/* ═══════════════════════════════════════════════════
+   暗色模式
+   ═══════════════════════════════════════════════════ */
 [data-theme='dark'] {
-  /* TODO: 暗色配色 — 后续迭代 */
+  /* ── 主色 ── */
+  --color-primary: #60a5fa;
+  --color-primary-hover: #93bbfd;
+  --color-primary-bg: rgba(96, 165, 250, 0.12);
+  --color-primary-border: rgba(96, 165, 250, 0.25);
+
+  /* ── 功能色（暗色下调亮） ── */
+  --color-danger: #f87171;
+  --color-success: #6ee7b7;
+  --color-warning: #fbbf24;
+
+  /* ── 文字 ── */
+  --color-text-primary: #e2e8f0;
+  --color-text-secondary: #94a3b8;
+  --color-text-muted: #64748b;
+  --color-text-placeholder: #475569;
+
+  /* ── 边框 ── */
+  --color-border: #334155;
+  --color-border-light: #1e293b;
+
+  /* ── 背景 ── */
+  --color-bg-page: #0f172a;
+  --color-bg-card: #1e293b;
+  --color-bg-hover: rgba(255, 255, 255, 0.04);
+
+  /* ── 阴影 ── */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 12px 40px rgba(0, 0, 0, 0.6);
+
+  /* ── Element Plus 暗色覆盖 ── */
+  --el-color-primary: var(--color-primary);
+  --el-color-primary-light-3: #3b82f6;
+  --el-color-primary-light-5: #2563eb;
+  --el-color-primary-light-7: #1d4ed8;
+  --el-color-primary-light-8: #1e40af;
+  --el-color-primary-light-9: #1e3a5f;
+  --el-color-primary-dark-2: #93bbfd;
+  --el-color-danger: var(--color-danger);
+  --el-color-success: var(--color-success);
+  --el-color-warning: var(--color-warning);
+
+  --el-text-color-primary: var(--color-text-primary);
+  --el-text-color-regular: var(--color-text-secondary);
+  --el-text-color-secondary: var(--color-text-muted);
+  --el-text-color-placeholder: var(--color-text-placeholder);
+
+  --el-border-color: var(--color-border);
+  --el-border-color-light: var(--color-border-light);
+  --el-border-color-lighter: var(--color-border-light);
+
+  --el-bg-color: var(--color-bg-card);
+  --el-bg-color-page: var(--color-bg-page);
+  --el-bg-color-overlay: var(--color-bg-card);
+
+  --el-fill-color-blank: var(--color-bg-card);
+  --el-fill-color-light: var(--color-bg-hover);
+
+  /* 全局背景 */
+  color-scheme: dark;
 }

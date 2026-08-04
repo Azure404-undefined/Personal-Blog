@@ -3,6 +3,7 @@ import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAppStore } from '@/stores/modules/app'
 import { getArticles } from '@/services/api/articles'
+import { Search, Close } from '@element-plus/icons-vue'
 import DOMPurify from 'dompurify'
 
 defineOptions({ name: 'SearchModal' })
@@ -120,7 +121,7 @@ const excerpt = (md: string, max = 100) => {
         <div class="search-panel">
           <!-- 搜索头部 -->
           <div class="search-header">
-            <span class="search-icon">🔍</span>
+            <el-icon class="search-icon" :size="18"><Search /></el-icon>
             <input
               ref="inputRef"
               v-model="query"
@@ -130,7 +131,7 @@ const excerpt = (md: string, max = 100) => {
               @input="debouncedSearch"
               @keydown="onKeydown"
             />
-            <button class="search-close" @click="close" aria-label="关闭">✕</button>
+            <button class="search-close" @click="close" aria-label="关闭"><el-icon :size="14"><Close /></el-icon></button>
           </div>
 
           <!-- 结果列表 -->
@@ -211,8 +212,8 @@ const excerpt = (md: string, max = 100) => {
 }
 
 .search-icon {
-  font-size: 18px;
   flex-shrink: 0;
+  color: var(--color-text-muted);
 }
 
 .search-input {

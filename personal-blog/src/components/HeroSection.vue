@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useScroll } from '@vueuse/core'
+import { ArrowDown } from '@element-plus/icons-vue'
 
 defineOptions({ name: 'HeroSection' })
 
@@ -59,7 +60,7 @@ const bgImage = computed(() => {
     <div v-if="!mini" class="hero-content" :style="{ opacity: greetingOpacity }">
       <h1 class="hero-greeting">Hi，我是 Azure</h1>
       <p class="hero-sub">写代码 · 写文章 · 记录生活</p>
-      <span class="hero-scroll-hint">↓ 向下滚动</span>
+      <span class="hero-scroll-hint"><el-icon :size="14"><ArrowDown /></el-icon> 向下滚动</span>
     </div>
 
     <!-- 其他页面：标题 -->

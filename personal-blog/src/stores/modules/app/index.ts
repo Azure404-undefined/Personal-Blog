@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
-import { useMediaQuery } from '@vueuse/core'
-import { ref } from 'vue'
+import { useMediaQuery, useDark, useToggle } from '@vueuse/core'
+import { ref, computed } from 'vue'
 
 export const useAppStore = defineStore('app', () => {
   // 监听屏幕宽度（768px 是移动端/PC 的常见分界线）
@@ -10,24 +10,17 @@ export const useAppStore = defineStore('app', () => {
   // 控制头部的显示状态
   const setHeaderVisible = ref(true)
 
-  // ── 主题（暗色模式预留） ──
-  type Theme = 'light' | 'dark'
-  const theme = ref<Theme>((localStorage.getItem('theme') as Theme) || 'light')
-
-  const setTheme = (t: Theme) => {
-    theme.value = t
-    localStorage.setItem('theme', t)
-    document.documentElement.setAttribute('data-theme', t)
-  }
-
-  const toggleTheme = () => {
-    setTheme(theme.value === 'light' ? 'dark' : 'light')
-  }
-
-  // 初始化：同步 DOM 属性
-  if (typeof document !== 'undefined') {
-    document.documentElement.setAttribute('data-theme', theme.value)
-  }
+  // ── 主题 ──
+  const isDark = useDark({
+    selector: 'html',
+    attribute: 'data-theme',
+    valueDark: 'dark',
+    valueLight: 'light',
+    storageKey: 'theme',
+    disableTransition: false,
+  })
+  const toggleTheme = useToggle(isDark)
+  const theme = computed<'light' | 'dark'>(() => (isDark.value ? 'dark' : 'light'))
 
   // 切换菜单展开/收起
   const toggleMenu = () => {
@@ -71,8 +64,8 @@ export const useAppStore = defineStore('app', () => {
     toggleMenu,
     closeMenu,
     // 主题
+    isDark,
     theme,
-    setTheme,
     toggleTheme,
     // 搜索弹窗
     showSearchModal,
