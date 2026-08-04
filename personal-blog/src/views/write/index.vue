@@ -13,6 +13,7 @@ import { Picture, Delete } from '@element-plus/icons-vue'
 import { useAuthStore } from '@/stores/modules/auth'
 import MarkdownIt from 'markdown-it'
 import SafeContent from '@/components/safeContent.vue'
+import HeroSection from '@/components/HeroSection.vue'
 
 defineOptions({ name: 'WriteView' })
 
@@ -217,7 +218,7 @@ const removeCover = () => {
 
 <template>
   <div class="write-page">
-    <h1 class="page-title">{{ isEdit ? '编辑文章' : '写文章' }}</h1>
+    <HeroSection mini :title="isEdit ? '编辑文章' : '写文章'" />
 
     <!-- 编辑文章加载 -->
     <div v-if="loadingArticle" class="state-loading">
@@ -325,10 +326,6 @@ const removeCover = () => {
   max-width: 960px;
   margin: 0 auto;
   padding: 0 $spacing-md;
-}
-
-.page-title {
-  @include page-title;
 }
 
 .state-box {

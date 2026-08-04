@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { watch, useTemplateRef } from 'vue'
+import { watch, useTemplateRef, computed } from 'vue'
 import { useAuthStore } from '@/stores/modules/auth'
 import { useAppStore } from '@/stores/modules/app'
 import { useRouter, useRoute } from 'vue-router'
@@ -15,6 +15,16 @@ const route = useRoute()
 
 // const mainRef = useTemplateRef('mainRef');
 const { y, directions } = useScroll(window, { throttle: 100 });
+
+// header 是否覆盖在 Hero 上方（毛玻璃 + 白色文字）
+const isOverHero = computed(() => y.value < 200)
+
+// header 背景透明度：顶部全透明 → 逐渐出现毛玻璃 → 离开 Hero 后恢复实色
+const headerBgOpacity = computed(() => {
+  if (y.value < 20) return 0
+  if (y.value < 200) return Math.min((y.value - 20) / 180, 1) * 0.15
+  return 1
+})
 const handleLogout = () => {
   authStore.clearLocalToken()
   appStore.closeMenu()
@@ -35,7 +45,14 @@ watch(
 
 <template>
   <div class="app-layout">
-    <header class="app-header" :class="{ hidden: !appStore.setHeaderVisible, background: y < 52 }">
+    <header
+      class="app-header"
+      :class="{
+        hidden: !appStore.setHeaderVisible,
+        'over-hero': isOverHero,
+      }"
+      :style="isOverHero ? { '--header-bg-alpha': headerBgOpacity } : {}"
+    >
       <div class="header-inner">
         <router-link to="/" class="logo" @click="appStore.closeMenu()"> 📝 个人博客 </router-link>
 
@@ -110,14 +127,16 @@ watch(
 }
 
 .app-header {
-  border-bottom: 1px solid var(--color-border);
-  background: rgba(29, 30, 31, 0.3);
+  border-bottom: 1px solid transparent;
+  background: rgba(29, 30, 31, 0.6);
   padding: 0;
   width: 100%;
   position: fixed;
   top: 0;
   z-index: 100;
-  transition: transform 0.5s ease;
+  transition:
+    transform 0.5s ease,
+    background 0.3s ease;
 
   .header-inner {
     max-width: $max-width-content;
@@ -132,27 +151,25 @@ watch(
     transform: translateY(-100%);
   }
 
-  &.background {
-    background: transparent;
+  // 覆盖 Hero 时：顶部全透明 → 逐渐显现毛玻璃
+  &.over-hero {
+    background: rgba(15, 23, 42, var(--header-bg-alpha, 0));
+    // backdrop-filter: blur(6px);
   }
 }
 
-// ── logo ──
+// ── header 内部元素：统一亮色文字 ──
 .logo {
   font-size: $font-size-body;
   font-weight: 600;
-  color: var(--color-text-primary);
+  color: rgba(255, 255, 255, 0.9);
   text-decoration: none;
   flex-shrink: 0;
 }
 
-// ── 导航链接 ──
 .nav-links {
-  display: flex;
-  gap: $spacing-xs;
-
   a {
-    color: var(--color-text-secondary);
+    color: rgba(255, 255, 255, 0.8);
     text-decoration: none;
     font-size: $font-size-small;
     padding: $spacing-xs $spacing-sm;
@@ -162,47 +179,61 @@ watch(
       background 0.2s;
 
     &:hover {
-      color: var(--color-primary);
-      background: var(--color-primary-bg);
+      color: #fff;
+      background: rgba(255, 255, 255, 0.3);
     }
 
     &.active {
-      color: var(--color-primary);
+      color: var(--color-primary-hover);
     }
   }
 }
 
-// ── 搜索触发按钮 ──
 .search-trigger {
   display: flex;
   align-items: center;
   gap: 6px;
   padding: 5px 10px;
-  border: 1px solid var(--color-border);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: $radius-md;
-  background: var(--color-bg-card);
+  background: transparent;
   cursor: pointer;
   font-family: inherit;
   font-size: 13px;
-  color: var(--color-text-placeholder);
+  color: rgba(255, 255, 255, 0.6);
   transition:
     border-color 0.15s,
     color 0.15s;
 
   kbd {
     padding: 2px 6px;
-    background: var(--color-bg-hover);
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 3px;
     font-size: 11px;
     font-family: monospace;
-    color: var(--color-text-muted);
+    color: rgba(255, 255, 255, 0.5);
     margin-left: 4px;
   }
 
   &:hover {
-    border-color: var(--color-primary);
-    color: var(--color-text-secondary);
+    border-color: rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 0.85);
   }
+}
+
+.uid {
+  font-size: $font-size-small;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.hamburger-line {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+// ── 导航链接（布局） ──
+.nav-links {
+  display: flex;
+  gap: $spacing-xs;
 }
 
 // ── 用户区 ──
@@ -211,11 +242,6 @@ watch(
   display: flex;
   align-items: center;
   gap: $spacing-sm;
-}
-
-.uid {
-  font-size: $font-size-small;
-  color: var(--color-text-muted);
 }
 
 // ── 汉堡按钮 ──
@@ -239,7 +265,7 @@ watch(
     display: block;
     width: 20px;
     height: 2px;
-    background: var(--color-text-primary);
+    background: rgba(255, 255, 255, 0.9);
     border-radius: 1px;
     transition:
       transform 0.3s,

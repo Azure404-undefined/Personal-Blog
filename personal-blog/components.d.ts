@@ -21,6 +21,7 @@ declare module 'vue' {
     ElPagination: typeof import('element-plus/es')['ElPagination']
     ElSelect: typeof import('element-plus/es')['ElSelect']
     ElTag: typeof import('element-plus/es')['ElTag']
+    HeroSection: typeof import('./src/components/HeroSection.vue')['default']
     LoginForm: typeof import('./src/components/LoginForm.vue')['default']
     LoginModal: typeof import('./src/components/LoginModal.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']

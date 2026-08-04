@@ -179,9 +179,10 @@ watch(() => route.params.id, fetchArticle)
   position: relative;
   width: 100vw;
   margin-left: calc(50% - 50vw);
-  height: 33vh;
-  min-height: 200px;
-  max-height: 400px;
+  margin-top: -$header-height; // 延伸到 header 后方
+  height: calc(33vh + $header-height);
+  min-height: 252px; // 200 + 52
+  max-height: 452px; // 400 + 52
   overflow: hidden;
   margin-bottom: $spacing-lg;
 }
@@ -193,12 +194,13 @@ watch(() => route.params.id, fetchArticle)
 .banner-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.3) 0%,
-    rgba(0, 0, 0, 0.2) 40%,
-    rgba(0, 0, 0, 0.7) 100%
-  );
+  background: rgba(0, 0, 0, 0.4);
+  // background: linear-gradient(
+  //   to bottom,
+  //   rgba(0, 0, 0, 0.3) 0%,
+  //   rgba(0, 0, 0, 0.2) 40%,
+  //   rgba(0, 0, 0, 0.7) 100%
+  // );
   pointer-events: none;
 }
 
@@ -210,7 +212,7 @@ watch(() => route.params.id, fetchArticle)
   align-items: center;
   justify-content: center;
   gap: $spacing-sm;
-  padding: 0 $spacing-lg;
+  padding: $header-height $spacing-lg 0;
   text-align: center;
 }
 

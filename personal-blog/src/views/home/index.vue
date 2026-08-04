@@ -4,6 +4,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { getArticles, getCategories } from '@/services/api/articles'
 import { fmtDate } from '@/utils/date'
 import { coverUrl } from '@/utils/image'
+import HeroSection from '@/components/HeroSection.vue'
 
 defineOptions({ name: 'HomeView' })
 
@@ -104,6 +105,8 @@ watch(
 
 <template>
   <div class="home-page">
+    <HeroSection />
+
     <!-- 分类筛选 -->
     <div v-if="categories.length" class="filter-bar">
       <button

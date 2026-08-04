@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { getMyArticles, deleteArticle } from '@/services/api/articles'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { fmtDate } from '@/utils/date'
+import HeroSection from '@/components/HeroSection.vue'
 
 defineOptions({ name: 'MyArticlesView' })
 
@@ -63,7 +64,7 @@ onMounted(fetchArticles)
 
 <template>
   <div class="my-page">
-    <h1 class="page-title">我的文章</h1>
+    <HeroSection mini title="我的文章" />
 
     <!-- loading: 骨架屏 -->
     <div v-if="loading" class="skeleton-list">
@@ -126,10 +127,6 @@ onMounted(fetchArticles)
   max-width: 800px;
   margin: 0 auto;
   padding: 0 $spacing-md;
-}
-
-.page-title {
-  @include page-title;
 }
 
 .state-box {
