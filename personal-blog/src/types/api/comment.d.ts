@@ -6,6 +6,7 @@ declare namespace API {
       content: string
       authorUid: string
       author: string
+      authorAvatar?: string
       replyToAuthor?: string | null
       parentId: string | null
       createdAt: number
@@ -16,6 +17,7 @@ declare namespace API {
       content: string
       parentId?: string | null
       author: string
+      authorAvatar?: string
       replyToAuthor?: string | null
     }
 

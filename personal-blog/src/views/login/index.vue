@@ -1,32 +1,115 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import LoginForm from '@/components/LoginForm.vue'
 
 defineOptions({ name: 'LoginView' })
+
+// 右侧面板图片：Unsplash 占位，之后找到合适的本地图，改为 import 引入即可
+const PANEL_IMAGE = 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=600&h=800&fit=crop'
+
+const imgError = ref(false)
 </script>
 
 <template>
   <div class="login-page">
     <div class="login-card">
-      <LoginForm />
+      <!-- 左侧：登录表单 -->
+      <div class="login-left">
+        <LoginForm align="left" />
+      </div>
+
+      <!-- 右侧：装饰图片 -->
+      <div class="login-right">
+        <img
+          v-if="!imgError"
+          :src="PANEL_IMAGE"
+          alt=""
+          class="login-right-img"
+          loading="eager"
+          @error="imgError = true"
+        />
+        <div v-else class="login-right-fallback" />
+      </div>
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .login-page {
+  position: relative;
   min-height: calc(100vh - $header-height);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-bg-page);
+  padding: $spacing-lg;
+  box-sizing: border-box;
+  &::before {
+    content: '';
+    margin-top: -$header-height;
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, #409eff 0%, #00bcd4 100%);
+    opacity: 0.5;
+    z-index: -1;
+  }
 }
 
 .login-card {
-  width: 380px;
-  max-width: 90vw;
+  display: flex;
+  width: 100%;
+  max-width: 900px;
+  min-height: 520px;
   background: var(--color-bg-card);
   border-radius: $radius-lg;
-  padding: 40px $spacing-xl;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-xl);
+  overflow: hidden;
+}
+
+.login-left {
+  flex: 0 0 55%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px $spacing-2xl;
+  box-sizing: border-box;
+}
+
+.login-right {
+  flex: 1;
+  position: relative;
+  background: var(--color-bg-hover);
+}
+
+.login-right-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+// 图片加载失败时的渐变占位
+.login-right-fallback {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #409eff 0%, #00bcd4 100%);
+}
+
+@media (max-width: $breakpoint-md) {
+  .login-page {
+    padding: $spacing-md;
+  }
+
+  .login-card {
+    min-height: auto;
+  }
+
+  .login-right {
+    display: none;
+  }
+
+  .login-left {
+    flex: 1;
+    padding: $spacing-xl $spacing-lg;
+  }
 }
 </style>

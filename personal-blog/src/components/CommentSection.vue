@@ -5,6 +5,7 @@ import { getComments, createComment, deleteComment } from '@/services/api/commen
 import { useAuthStore } from '@/stores/modules/auth'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { fmtDate } from '@/utils/date'
+import { avatarInitial } from '@/utils/avatar'
 
 const REPLIES_PREVIEW = 2
 
@@ -103,6 +104,7 @@ const handleSubmitReply = async (rootComment: API.Comments.TreeComment) => {
       content: replyContent.value.trim(),
       parentId: rootComment._id,
       author: authStore.username || '',
+      authorAvatar: '',
       replyToAuthor: activeReplyToAuthor.value,
     })
     cancelReply()
@@ -123,6 +125,7 @@ const handlePostRoot = async () => {
       content: newComment.value.trim(),
       parentId: null,
       author: authStore.username || '',
+      authorAvatar: '',
       replyToAuthor: null,
     })
     newComment.value = ''
@@ -168,15 +171,14 @@ watch(
   <div class="comment-section">
     <h3 class="comment-title">评论 ({{ commentCount }})</h3>
 
-    <!-- 加载 / 错误 / 空态 -->
+    <!-- 加载 / 错误 -->
     <div v-if="loading" class="comment-state">
       <div class="comment-spinner" />
       <span>加载中...</span>
     </div>
     <div v-else-if="error" class="comment-state comment-error">{{ error }}</div>
-    <div v-else-if="!treeComments.length" class="comment-empty">暂无评论，来说点什么吧</div>
 
-    <!-- 评论列表 -->
+    <!-- 评论区（加载完成后始终显示输入框/登录提示） -->
     <div v-else class="comment-section-body">
       <!-- 未登录提示 -->
       <div v-if="!authStore.isLogin" class="comment-login-hint">
@@ -193,7 +195,7 @@ watch(
       </div>
 
       <!-- 一级评论输入框 -->
-      <div v-if="authStore.isLogin" class="comment-post-root">
+      <div v-else class="comment-post-root">
         <textarea
           v-model="newComment"
           class="comment-textarea"
@@ -206,10 +208,17 @@ watch(
           </el-button>
         </div>
       </div>
-      <div v-for="root in treeComments" :key="root._id" class="comment-thread">
+
+      <!-- 无评论空态 -->
+      <div v-if="!treeComments.length" class="comment-empty">暂无评论，来说点什么吧</div>
+
+      <!-- 评论列表 -->
+      <template v-else>
+        <div v-for="root in treeComments" :key="root._id" class="comment-thread">
         <!-- 一级评论 (楼主) -->
         <div class="comment-item">
           <div class="comment-top">
+            <span class="comment-avatar">{{ avatarInitial(root.author) }}</span>
             <span class="comment-author">{{ root.author }}</span>
           </div>
           <div class="comment-content" @click="openReply(root._id)">{{ root.content }}</div>
@@ -241,6 +250,7 @@ watch(
         <div v-if="root.replies.length" class="replies">
           <div v-for="reply in visibleReplies(root)" :key="reply._id" class="comment-item is-reply">
             <div class="comment-top">
+              <span class="comment-avatar">{{ avatarInitial(reply.author) }}</span>
               <span class="comment-author">{{ reply.author }}</span>
               <span v-if="reply.replyToAuthor" class="reply-label">
                 回复 '{{ reply.replyToAuthor }}'
@@ -304,6 +314,7 @@ watch(
           </div>
         </div>
       </div>
+      </template>
     </div>
   </div>
 </template>
@@ -397,12 +408,6 @@ watch(
   margin-top: $spacing-sm;
 }
 
-// ---- 评论列表 ----
-.comment-list {
-  display: flex;
-  flex-direction: column;
-}
-
 .comment-thread {
   @include reveal;
 
@@ -423,8 +428,23 @@ watch(
 .comment-top {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   margin-bottom: $spacing-sm;
+}
+
+.comment-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  flex-shrink: 0;
+  user-select: none;
 }
 
 .comment-author {
@@ -486,10 +506,6 @@ watch(
 
 .comment-btn-delete:hover {
   color: var(--color-danger);
-}
-
-.comment-right {
-  // 预留：未来点赞
 }
 
 // ---- 二级回复 ----

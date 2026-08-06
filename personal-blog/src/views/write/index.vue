@@ -105,6 +105,7 @@ const handleSubmit = async () => {
       content: c,
       category: category.value || undefined,
       coverImage: coverImageUrl.value || undefined,
+      authorName: authStore.username || '',
     }
     if (isEdit.value) {
       await updateArticle(editId.value, payload)

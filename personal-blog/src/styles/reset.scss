@@ -9,6 +9,16 @@ body {
   color: var(--color-text-primary);
 }
 
+// ── 主题切换渐变 ──
+// transition 不继承，必须用 * 让所有元素参与主题切换动画
+* {
+  transition:
+    background-color 0.4s ease,
+    color 0.3s ease,
+    border-color 0.4s ease,
+    box-shadow 0.4s ease;
+}
+
 // ── 页面路由过渡动画 ──
 .page-enter-active,
 .page-leave-active {
@@ -25,14 +35,6 @@ body {
   transform: translateY(-8px);
 }
 
-// ── 主题切换渐变 ──
-*{
-  transition:
-    background-color 0.4s ease,
-    color 0.3s ease,
-    border-color 0.4s ease,
-    box-shadow 0.4s ease,
-}
 
 // ── 全局细节 ──
 
@@ -51,10 +53,10 @@ textarea:focus-visible {
   outline-offset: 2px;
 }
 
-// 滚动条 (Webkit)
+// 滚动条 (Webkit) — 4px 细滚动条，减小视口占位
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 4px;
+  height: 4px;
 }
 
 ::-webkit-scrollbar-track {
@@ -63,12 +65,22 @@ textarea:focus-visible {
 
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
-  border-radius: 3px;
+  border-radius: 2px;
 
   &:hover {
     background: #94a3b8;
   }
 }
+
+// 滚动条 (Firefox & Chrome 121+) — 细滚动条，只作用于页面级
+// scrollbar-width 不继承，用 html 避免覆盖 ::-webkit-scrollbar 自定义样式
+html {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+// 全宽 banner/hero 元素用 99.8vw 避免与滚动条占位冲突造成横向溢出
+// 见 HeroSection.vue 和 article-detail/index.vue
 
 // 图片默认圆角
 img {

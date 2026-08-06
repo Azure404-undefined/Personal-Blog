@@ -73,9 +73,10 @@ const bgImage = computed(() => {
 <style lang="scss" scoped>
 .hero {
   position: relative;
-  width: 100vw;
+  width: 99.7vw;
   margin-left: calc(50% - 50vw);
   margin-top: -$header-height; // 延伸到 header 后方
+  margin-bottom: $header-bottom-margin; // 与内容区间隔
   height: calc(45vh + $header-height);
   min-height: 352px; // 300 + 52
   max-height: 552px; // 500 + 52

@@ -275,6 +275,7 @@ exports.main = async (event) => {
           authorUid: uid,
           parentId: input.parentId || null,
           author: input.author || '',
+          authorAvatar: input.authorAvatar || '',
           replyToAuthor: input.replyToAuthor || null,
         },
       });
@@ -316,6 +317,8 @@ exports.main = async (event) => {
       const createData = { title: input.title, content: input.content, ownerUid: uid };
       if (input.category) createData.category = input.category;
       if (input.coverImage) createData.coverImage = input.coverImage;
+      if (input.authorName) createData.authorName = input.authorName;
+      if (input.authorAvatar) createData.authorAvatar = input.authorAvatar;
       const { data } = await models.articles.create({ data: createData });
       return reply(201, data);
     }

@@ -10,6 +10,8 @@ declare namespace API {
       createdAt: number
       updatedAt: number
       owner: string
+      authorName?: string
+      authorAvatar?: string
       _openid: string
       createBy: string
       updateBy: string
@@ -34,6 +36,8 @@ declare namespace API {
       content: string
       category?: string
       coverImage?: string
+      authorName?: string
+      authorAvatar?: string
     }
 
     interface updateArticleParams {

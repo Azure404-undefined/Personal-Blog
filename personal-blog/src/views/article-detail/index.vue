@@ -5,6 +5,7 @@ import { getArticleById, deleteArticle } from '@/services/api/articles'
 import { useAuthStore } from '@/stores/modules/auth'
 import { fmtDate } from '@/utils/date'
 import { coverUrl } from '@/utils/image'
+import { avatarInitial } from '@/utils/avatar'
 import MarkdownIt from 'markdown-it'
 import SafeContent from '@/components/safeContent.vue'
 import CommentSection from '@/components/CommentSection.vue'
@@ -93,6 +94,12 @@ watch(() => route.params.id, fetchArticle)
               {{ article.category }}
             </el-tag>
             <h1 class="banner-title">{{ article.title }}</h1>
+            <div class="banner-author-row">
+              <span class="banner-author-avatar">
+                {{ avatarInitial(article.authorName || '博主') }}
+              </span>
+              <span class="banner-author-name">{{ article.authorName || '博主' }}</span>
+            </div>
             <time class="banner-date">{{ fmtDate(article.updatedAt) }}</time>
           </div>
         </div>
@@ -103,6 +110,10 @@ watch(() => route.params.id, fetchArticle)
         <header v-if="!coverUrl(article.coverImage)" class="detail-header">
           <h1 class="detail-title">{{ article.title }}</h1>
           <div class="detail-meta">
+            <span class="detail-author-avatar">
+              {{ avatarInitial(article.authorName || '博主') }}
+            </span>
+            <span class="detail-author-name">{{ article.authorName || '博主' }}</span>
             <el-tag v-if="article.category" size="small">{{ article.category }}</el-tag>
             <time>{{ fmtDate(article.updatedAt) }}</time>
           </div>
@@ -177,7 +188,7 @@ watch(() => route.params.id, fetchArticle)
 
 .detail-banner {
   position: relative;
-  width: 100vw;
+  width: 99.7vw;
   margin-left: calc(50% - 50vw);
   margin-top: -$header-height; // 延伸到 header 后方
   height: calc(33vh + $header-height);
@@ -236,6 +247,34 @@ watch(() => route.params.id, fetchArticle)
   color: rgba(255, 255, 255, 0.85);
 }
 
+.banner-author-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.banner-author-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  flex-shrink: 0;
+  border: 1.5px solid rgba(255, 255, 255, 0.6);
+  user-select: none;
+}
+
+.banner-author-name {
+  font-size: $font-size-small;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+}
+
 .banner-actions {
   display: flex;
   justify-content: flex-end;
@@ -250,6 +289,26 @@ watch(() => route.params.id, fetchArticle)
   font-size: $font-size-small;
   color: var(--color-text-placeholder);
   margin-bottom: 12px;
+}
+
+.detail-author-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.detail-author-name {
+  font-weight: 500;
+  color: var(--color-text-secondary);
 }
 
 .detail-actions {

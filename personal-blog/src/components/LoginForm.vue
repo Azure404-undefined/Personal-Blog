@@ -5,6 +5,8 @@ import { useAuthStore } from '@/stores/modules/auth'
 
 defineOptions({ name: 'LoginForm' })
 
+const props = withDefaults(defineProps<{ align?: 'left' | 'center' }>(), { align: 'center' })
+
 const emit = defineEmits<{
   (e: 'success'): void
 }>()
@@ -63,7 +65,7 @@ const handleLogin = async () => {
     <p v-if="errorMsg" class="login-form-error">{{ errorMsg }}</p>
 
     <button class="login-submit" type="submit" :disabled="loading">
-      {{ loading ? '登录中...' : '登录' }}
+      <span>{{ loading ? '登录中...' : '登录' }}</span>
     </button>
   </form>
 </template>
@@ -80,14 +82,14 @@ const handleLogin = async () => {
   font-size: $font-size-h1;
   font-weight: 700;
   color: var(--color-text-primary);
-  text-align: center;
+  text-align: v-bind('props.align');
 }
 
 .login-form-sub {
   margin: -6px 0 8px;
   font-size: $font-size-small;
   color: var(--color-text-muted);
-  text-align: center;
+  text-align: v-bind('props.align');
 }
 
 .login-input {
@@ -123,6 +125,7 @@ const handleLogin = async () => {
 }
 
 .login-submit {
+  position: relative;
   width: 100%;
   height: 44px;
   margin-top: 6px;
@@ -133,13 +136,32 @@ const handleLogin = async () => {
   color: #fff;
   cursor: pointer;
   background: linear-gradient(135deg, var(--color-primary), #00bcd4);
-  transition:
-    background 0.3s ease,
-    box-shadow 0.3s ease,
-    transform 0.2s ease;
+  transition: box-shadow 0.3s ease, transform 0.6s ease;
+
+  span {
+    position: relative;
+    z-index: 1;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(135deg, #00bcd4, var(--color-primary));
+    opacity: 0;
+    transition: opacity 0.6s ease-in-out;
+    z-index: 0;
+  }
+
+  &:hover:not(:disabled)::before{
+    opacity: 1;
+  }
 
   &:hover:not(:disabled) {
-    background: linear-gradient(135deg, #00bcd4, var(--color-primary));
     box-shadow: 0 4px 20px rgba(0, 188, 212, 0.35);
     transform: translateY(-1px);
   }
