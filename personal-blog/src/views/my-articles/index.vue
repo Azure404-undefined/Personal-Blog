@@ -3,8 +3,8 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getMyArticles, deleteArticle } from '@/services/api/articles'
 import { ElMessageBox, ElMessage } from 'element-plus'
-import { fmtDate } from '@/utils/date'
 import HeroSection from '@/components/HeroSection.vue'
+import ArticleTimeline from '@/components/ArticleTimeline.vue'
 
 defineOptions({ name: 'MyArticlesView' })
 
@@ -88,25 +88,19 @@ onMounted(fetchArticles)
 
     <!-- list -->
     <template v-else>
-      <div class="article-list">
-        <div v-for="item in articles" :key="item._id" class="article-row">
-          <div class="row-main" @click="router.push(`/articles/${item._id}`)">
-            <h3 class="row-title">{{ item.title }}</h3>
-            <time class="row-date">{{ fmtDate(item.updatedAt) }}</time>
-          </div>
-          <div class="row-actions">
-            <el-button size="small" @click="router.push(`/write?id=${item._id}`)">编辑</el-button>
-            <el-button
-              size="small"
-              type="danger"
-              :loading="deleting === item._id"
-              @click="handleDelete(item._id)"
-            >
-              删除
-            </el-button>
-          </div>
-        </div>
-      </div>
+      <ArticleTimeline :articles="articles" show-excerpt>
+        <template #actions="{ article }">
+          <el-button size="small" @click="router.push(`/write?id=${article._id}`)">编辑</el-button>
+          <el-button
+            size="small"
+            type="danger"
+            :loading="deleting === article._id"
+            @click="handleDelete(article._id)"
+          >
+            删除
+          </el-button>
+        </template>
+      </ArticleTimeline>
 
       <div v-if="total > pageSize" class="pagination-wrap">
         <el-pagination
@@ -137,45 +131,6 @@ onMounted(fetchArticles)
 }
 .error-text {
   @include state-error-text;
-}
-
-.article-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-.article-row {
-  @include reveal;
-  display: flex;
-  align-items: center;
-  padding: $spacing-md 0;
-  border-bottom: 1px solid var(--color-border-light);
-}
-
-.row-main {
-  flex: 1;
-  cursor: pointer;
-  min-width: 0;
-}
-
-.row-title {
-  margin: 0 0 $spacing-xs;
-  font-size: $font-size-body;
-  font-weight: 500;
-  color: var(--color-text-primary);
-}
-
-.row-date {
-  font-size: $font-size-small;
-  color: var(--color-text-placeholder);
-}
-
-.row-actions {
-  display: flex;
-  gap: $spacing-sm;
-  flex-shrink: 0;
-  margin-left: $spacing-md;
 }
 
 .pagination-wrap {

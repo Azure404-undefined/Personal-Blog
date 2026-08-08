@@ -4,7 +4,20 @@ import { useAuthStore } from '@/stores/modules/auth'
 import { useAppStore } from '@/stores/modules/app'
 import { useRouter, useRoute } from 'vue-router'
 import { useScroll } from '@vueuse/core'
-import { Search, Sunny, Moon, HomeFilled, Document, EditPen, SwitchButton, User } from '@element-plus/icons-vue'
+import {
+  Search,
+  Sunny,
+  Moon,
+  HomeFilled,
+  Document,
+  EditPen,
+  SwitchButton,
+  User,
+  InfoFilled,
+  Collection,
+  Clock,
+  Link,
+} from '@element-plus/icons-vue'
 import { ElMessageBox } from 'element-plus'
 import { avatarInitial } from '@/utils/avatar'
 
@@ -46,6 +59,7 @@ watch(
     } else if (directions.top) {
       appStore.setHeaderVisibility(true)
     }
+    console.log(y.value)
   },
 )
 </script>
@@ -107,6 +121,38 @@ watch(
           <el-icon :size="15"><EditPen /></el-icon>
           <span>写文章</span>
         </router-link>
+        <router-link
+          to="/about"
+          :class="{ active: route.path === '/about' }"
+          @click="appStore.closeMenu()"
+        >
+          <el-icon :size="15"><InfoFilled /></el-icon>
+          <span>关于</span>
+        </router-link>
+        <router-link
+          to="/categories"
+          :class="{ active: route.path === '/categories' }"
+          @click="appStore.closeMenu()"
+        >
+          <el-icon :size="15"><Collection /></el-icon>
+          <span>分类</span>
+        </router-link>
+        <router-link
+          to="/archive"
+          :class="{ active: route.path === '/archive' }"
+          @click="appStore.closeMenu()"
+        >
+          <el-icon :size="15"><Clock /></el-icon>
+          <span>归档</span>
+        </router-link>
+        <router-link
+          to="/friends"
+          :class="{ active: route.path === '/friends' }"
+          @click="appStore.closeMenu()"
+        >
+          <el-icon :size="15"><Link /></el-icon>
+          <span>友链</span>
+        </router-link>
       </nav>
 
         <button
@@ -132,6 +178,15 @@ watch(
         </button>
       </div>
     </div>
+
+    <!-- 移动端: 菜单展开时点击空白区域关闭(Teleport 到 body,脱离 header 的 stacking context) -->
+    <Teleport to="body">
+      <div
+        v-if="appStore.isMenuOpen"
+        class="menu-backdrop"
+        @click="appStore.closeMenu()"
+      />
+    </Teleport>
   </header>
 </template>
 
@@ -410,6 +465,19 @@ watch(
   }
 }
 
+// ── 菜单遮罩(Teleport 到 body,点击空白关闭) ──
+.menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 98; // 低于 header(100),高于页面内容
+  background: rgba(0, 0, 0, 0.3);
+
+  // 桌面端汉堡菜单不可见,遮罩无意义
+  @media (min-width: $breakpoint-md) {
+    display: none;
+  }
+}
+
 // ── 移动端 ──
 @media (max-width: $breakpoint-md) {
   .logo {
@@ -459,6 +527,7 @@ watch(
     a {
       padding: 10px $spacing-sm;
       font-size: $font-size-body;
+      color: var(--color-text-primary);
     }
   }
 }

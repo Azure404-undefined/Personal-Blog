@@ -6,9 +6,11 @@ import { useAuthStore } from '@/stores/modules/auth'
 import { fmtDate } from '@/utils/date'
 import { coverUrl } from '@/utils/image'
 import { avatarInitial } from '@/utils/avatar'
+import { slugify, type TocItem } from '@/utils/toc'
 import MarkdownIt from 'markdown-it'
 import SafeContent from '@/components/safeContent.vue'
 import CommentSection from '@/components/CommentSection.vue'
+import TocSidebar from '@/components/TocSidebar.vue'
 import { ElMessageBox } from 'element-plus'
 
 defineOptions({ name: 'ArticleDetailView' })
@@ -18,6 +20,19 @@ const router = useRouter()
 const authStore = useAuthStore()
 const md = new MarkdownIt({ breaks: true, linkify: true })
 
+// 给标题注入锚点 ID(每次渲染前重置计数器,避免重复标题的 id 冲突)
+const headingIdCounts = new Map<string, number>()
+md.renderer.rules.heading_open = (tokens, idx, options, _env, self) => {
+  const inline = tokens[idx + 1]
+  const text = inline ? inline.content : ''
+  let id = slugify(text)
+  const count = (headingIdCounts.get(id) || 0) + 1
+  headingIdCounts.set(id, count)
+  if (count > 1) id = `${id}-${count}`
+  tokens[idx]?.attrSet('id', id)
+  return self.renderToken(tokens, idx, options)
+}
+
 const loading = ref(true)
 const error = ref('')
 const article = ref<API.Articles.Article | null>(null)
@@ -25,7 +40,25 @@ const deleting = ref(false)
 
 const id = computed(() => route.params.id as string)
 const isOwner = computed(() => article.value?.ownerUid === authStore.uid)
-const html = computed(() => (article.value ? md.render(article.value.content) : ''))
+const html = computed(() => {
+  if (!article.value) return ''
+  headingIdCounts.clear()
+  return md.render(article.value.content)
+})
+
+// 从渲染后的 HTML 提取目录(与注入的锚点 id 同源,保证点击跳转一致)
+const toc = computed<TocItem[]>(() => {
+  if (!html.value) return []
+  const doc = new DOMParser().parseFromString(html.value, 'text/html')
+  const items: TocItem[] = []
+  doc.querySelectorAll('h2, h3, h4').forEach((el) => {
+    const anchorId = el.id
+    if (anchorId) {
+      items.push({ level: Number(el.tagName[1]), text: el.textContent?.trim() || '', id: anchorId })
+    }
+  })
+  return items
+})
 
 const fetchArticle = async () => {
   loading.value = true
@@ -105,7 +138,8 @@ watch(() => route.params.id, fetchArticle)
         </div>
       </template>
 
-      <div class="detail-container">
+      <div class="detail-layout">
+        <div class="detail-container">
         <!-- 无封面: 原有 header 布局 -->
         <header v-if="!coverUrl(article.coverImage)" class="detail-header">
           <h1 class="detail-title">{{ article.title }}</h1>
@@ -141,6 +175,9 @@ watch(() => route.params.id, fetchArticle)
         </div>
 
         <CommentSection :article-id="id" />
+        </div>
+
+        <TocSidebar v-if="toc.length" :items="toc" />
       </div>
     </template>
   </div>
@@ -152,9 +189,21 @@ watch(() => route.params.id, fetchArticle)
   padding: 0 $spacing-md;
 }
 
+// 正文 + 右侧目录 的双栏布局
+.detail-layout {
+  display: flex;
+  justify-content: right;
+  align-items: flex-start;
+  // gap: $spacing-xl;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 $spacing-md;
+}
+
 .detail-container {
   max-width: 780px;
-  margin: 0 auto;
+  min-width: 0;
+  flex: 1 1 auto;
   padding: 0 $spacing-md;
 }
 
@@ -317,112 +366,18 @@ watch(() => route.params.id, fetchArticle)
 }
 
 .detail-body {
+  @include prose-typography;
   @include reveal;
   font-size: $font-size-body;
   line-height: 1.85;
   color: var(--color-text-primary);
   word-break: break-word;
 
-  // ── 正文排版 ──
-  :deep(p) {
-    margin: 0 0 20px;
-  }
-
-  :deep(h2) {
-    font-size: 22px;
-    font-weight: 600;
-    color: var(--color-text-primary);
-    margin: 32px 0 12px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--color-border-light);
-    line-height: 1.4;
-  }
-
-  :deep(h3) {
-    font-size: 19px;
-    font-weight: 600;
-    color: var(--color-text-primary);
-    margin: 28px 0 10px;
-    line-height: 1.4;
-  }
-
+  // 锚点跳转时预留 sticky header + 呼吸空间
+  :deep(h2),
+  :deep(h3),
   :deep(h4) {
-    font-size: $font-size-body;
-    font-weight: 600;
-    color: var(--color-text-primary);
-    margin: 24px 0 8px;
-    line-height: 1.4;
-  }
-
-  :deep(blockquote) {
-    margin: 20px 0;
-    padding: 12px 20px;
-    border-left: 4px solid var(--color-primary);
-    background: var(--color-bg-hover);
-    border-radius: 0 $radius-md $radius-md 0;
-    color: var(--color-text-secondary);
-    font-size: 16px;
-    line-height: 1.7;
-
-    p {
-      margin: 0;
-    }
-  }
-
-  :deep(pre) {
-    margin: 20px 0;
-    padding: 16px 20px;
-    background: #1e293b;
-    color: #e2e8f0;
-    border-radius: $radius-md;
-    font-size: 14px;
-    line-height: 1.6;
-    overflow-x: auto;
-  }
-
-  :deep(code) {
-    &:not(pre code) {
-      background: var(--color-bg-hover);
-      color: var(--color-danger);
-      padding: 2px 6px;
-      border-radius: $radius-sm;
-      font-size: 0.9em;
-    }
-  }
-
-  :deep(ul),
-  :deep(ol) {
-    margin: 0 0 20px;
-    padding-left: 24px;
-    line-height: 1.85;
-
-    li {
-      margin-bottom: 6px;
-    }
-  }
-
-  :deep(hr) {
-    margin: 32px 0;
-    border: none;
-    border-top: 1px solid var(--color-border-light);
-  }
-
-  :deep(a) {
-    color: var(--color-primary);
-    text-decoration: none;
-    transition: opacity 0.15s;
-
-    &:hover {
-      opacity: 0.8;
-    }
-  }
-
-  :deep(img) {
-    max-width: 100%;
-    height: auto;
-    border-radius: $radius-md;
-    margin: 20px 0;
-    display: block;
+    scroll-margin-top: calc($header-height + $spacing-lg);
   }
 }
 </style>

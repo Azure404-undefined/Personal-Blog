@@ -364,6 +364,65 @@ exports.main = async (event) => {
     }
 
     // ────────────────────────────────────────
+    //  Friends 友链
+    // ────────────────────────────────────────
+
+    // GET /friends —— 公开列表
+    if (method === 'GET' && /^\/friends\/?$/.test(path)) {
+      const { data } = await models.friends.list({
+        filter: { where: {} },
+        select: { $master: true },
+        orderBy: [{ createdAt: 'asc' }],
+        pageSize: 200,
+      });
+      return reply(200, { records: data.records, total: data.total });
+    }
+
+    // POST /friends —— 新建(需登录)
+    if (method === 'POST' && /^\/friends\/?$/.test(path)) {
+      const uid = requireUid(headers);
+      let input;
+      try { input = JSON.parse(event.body || '{}'); } catch (_) {
+        return reply(400, { error: 'invalid JSON' });
+      }
+      if (!input.name || !input.url || typeof input.name !== 'string' || typeof input.url !== 'string') {
+        return reply(400, { error: 'name and url required (strings)' });
+      }
+      if (input.name.length > 50 || input.url.length > 500) {
+        return reply(400, { error: 'name or url too long' });
+      }
+      const createData = {
+        name: input.name,
+        url: input.url,
+        avatar: input.avatar || '',
+        description: input.description || '',
+        ownerUid: uid,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      };
+      const { data } = await models.friends.create({ data: createData });
+      return reply(201, data);
+    }
+
+    // DELETE /friends/:id —— 删除(仅创建者)
+    const mDelFriend = method === 'DELETE' && path.match(/^\/friends\/([^/]+)$/);
+    if (mDelFriend) {
+      const uid = requireUid(headers);
+      const { data } = await models.friends.list({
+        filter: { where: { _id: { $eq: mDelFriend[1] } } },
+        select: { $master: true },
+        pageSize: 1,
+      });
+      const friend = (data.records && data.records[0]) || null;
+      if (!friend) return reply(404, { error: 'not found' });
+      if (friend.ownerUid !== uid) return reply(403, { error: 'forbidden: not your friend link' });
+      await models.friends.delete({
+        filter: { where: { _id: { $eq: mDelFriend[1] } } },
+      });
+      return reply(200, { ok: true });
+    }
+
+    // ────────────────────────────────────────
     //  Diagnostics
     // ────────────────────────────────────────
 

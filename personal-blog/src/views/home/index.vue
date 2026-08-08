@@ -5,6 +5,8 @@ import { getArticles, getCategories } from '@/services/api/articles'
 import { fmtDate } from '@/utils/date'
 import { coverUrl } from '@/utils/image'
 import { avatarInitial } from '@/utils/avatar'
+import { categoryColor } from '@/utils/category'
+import { excerpt } from '@/utils/text'
 import HeroSection from '@/components/HeroSection.vue'
 
 defineOptions({ name: 'HomeView' })
@@ -18,7 +20,7 @@ const articles = ref<API.Articles.Article[]>([])
 const total = ref(0)
 const page = ref(1)
 const pageSize = 10
-const category = ref('')
+const category = ref((route.query.category as string) || '')
 const categories = ref<string[]>([])
 const MAX_VISIBLE_TABS = 5
 
@@ -55,36 +57,6 @@ const onPageChange = (p: number) => {
   fetchArticles()
 }
 
-const excerpt = (md: string, max = 120) => {
-  const text = md
-    .replace(/[#*>`[\]()!_~]/g, '')
-    .replace(/\s+/g, ' ')
-    .trim()
-  return text.length > max ? text.slice(0, max) + '...' : text
-}
-
-// 分类 → 稳定颜色(同一分类永远同色)
-const CATEGORY_COLORS = [
-  'var(--color-cat-0)',
-  'var(--color-cat-1)',
-  'var(--color-cat-2)',
-  'var(--color-cat-3)',
-  'var(--color-cat-4)',
-  'var(--color-cat-5)',
-  'var(--color-cat-6)',
-  'var(--color-cat-7)',
-  'var(--color-cat-8)',
-  'var(--color-cat-9)',
-]
-
-const categoryColor = (cat: string) => {
-  let hash = 0
-  for (let i = 0; i < cat.length; i++) {
-    hash = cat.charCodeAt(i) + ((hash << 5) - hash)
-  }
-  return CATEGORY_COLORS[Math.abs(hash) % CATEGORY_COLORS.length]
-}
-
 onMounted(() => {
   fetchArticles()
   getCategories()
@@ -94,10 +66,11 @@ onMounted(() => {
     .catch(() => {})
 })
 
-// 监听搜索关键词变化(同一路由导航时 onMounted 不触发)
+// 监听 query 参数变化(同一路由导航时 onMounted 不触发)
 watch(
-  () => route.query.q,
-  () => {
+  () => ({ q: route.query.q, cat: route.query.category }),
+  ({ cat }) => {
+    category.value = (cat as string) || ''
     page.value = 1
     fetchArticles()
   },

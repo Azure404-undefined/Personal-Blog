@@ -11,10 +11,13 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    ArticleTimeline: typeof import('./src/components/ArticleTimeline.vue')['default']
     BackToTop: typeof import('./src/components/BackToTop.vue')['default']
     CommentSection: typeof import('./src/components/CommentSection.vue')['default']
     ElAutocomplete: typeof import('element-plus/es')['ElAutocomplete']
     ElButton: typeof import('element-plus/es')['ElButton']
+    ElForm: typeof import('element-plus/es')['ElForm']
+    ElFormItem: typeof import('element-plus/es')['ElFormItem']
     ElIcon: typeof import('element-plus/es')['ElIcon']
     ElInput: typeof import('element-plus/es')['ElInput']
     ElOption: typeof import('element-plus/es')['ElOption']
@@ -28,5 +31,7 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     SafeContent: typeof import('./src/components/safeContent.vue')['default']
     SearchModal: typeof import('./src/components/SearchModal.vue')['default']
+    TimelineEntry: typeof import('./src/components/TimelineEntry.vue')['default']
+    TocSidebar: typeof import('./src/components/TocSidebar.vue')['default']
   }
 }

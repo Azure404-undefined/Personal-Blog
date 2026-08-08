@@ -45,8 +45,44 @@ const router = createRouter({
       },
     },
     {
+      path: '/about',
+      name: 'About',
+      component: () => import('@/views/about/index.vue'),
+      meta: {
+        requiresAuth: false,
+      },
+    },
+    {
+      path: '/categories',
+      name: 'Categories',
+      component: () => import('@/views/categories/index.vue'),
+      meta: {
+        requiresAuth: false,
+      },
+    },
+    {
+      path: '/archive',
+      name: 'Archive',
+      component: () => import('@/views/archive/index.vue'),
+      meta: {
+        requiresAuth: false,
+      },
+    },
+    {
+      path: '/friends',
+      name: 'Friends',
+      component: () => import('@/views/friends/index.vue'),
+      meta: {
+        requiresAuth: false,
+      },
+    },
+    {
       path: '/:pathMatch(.*)*',
-      redirect: '/',
+      name: 'NotFound',
+      component: () => import('@/views/not-found/index.vue'),
+      meta: {
+        requiresAuth: false,
+      },
     },
   ],
 })
