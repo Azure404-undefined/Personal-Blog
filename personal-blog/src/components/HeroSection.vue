@@ -94,15 +94,36 @@ const bgImage = computed(() => {
   inset: -10px; // 略微溢出，缩放时不留白边
   background: center / cover no-repeat;
   will-change: transform;
+  // 入场: 仅淡入(transform 由滚动视差 inline style 控制)
+  animation: hero-bg-in 0.6s ease-out both;
+}
+
+@keyframes hero-bg-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .hero-overlay {
   position: absolute;
   inset: 0;
   background: rgba(0, 0, 0, 0.25);
+  animation: hero-fade 0.6s ease-out 0.15s both;
 
   .hero--mini & {
     background: rgba(0, 0, 0, 0.3);
+  }
+}
+
+@keyframes hero-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 
@@ -117,6 +138,19 @@ const bgImage = computed(() => {
   color: #fff;
   text-align: center;
   padding: $header-height $spacing-md 0;
+  // 入场: 文字后出,上浮浮现
+  animation: hero-text-up 0.5s ease-out 0.3s both;
+}
+
+@keyframes hero-text-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .hero-greeting {

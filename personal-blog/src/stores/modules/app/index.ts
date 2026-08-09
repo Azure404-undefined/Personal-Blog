@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { useMediaQuery, useDark, useToggle } from '@vueuse/core'
-import { ref, computed } from 'vue'
+import { ref, computed, readonly } from 'vue'
 
 export const useAppStore = defineStore('app', () => {
   // 监听屏幕宽度（768px 是移动端/PC 的常见分界线）
@@ -59,7 +59,8 @@ export const useAppStore = defineStore('app', () => {
   return {
     isMobile,
     isMenuOpen,
-    setHeaderVisible,
+    // 只读暴露,状态修改统一走 setHeaderVisibility
+    setHeaderVisible: readonly(setHeaderVisible),
     setHeaderVisibility,
     toggleMenu,
     closeMenu,

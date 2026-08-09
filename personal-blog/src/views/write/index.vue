@@ -9,11 +9,13 @@ import {
 } from '@/services/api/articles'
 import { uploadImage } from '@/services/api/upload'
 import { ElMessage } from 'element-plus'
-import { Picture, PictureFilled, Delete } from '@element-plus/icons-vue'
 import { useAuthStore } from '@/stores/modules/auth'
 import MarkdownIt from 'markdown-it'
-import SafeContent from '@/components/safeContent.vue'
 import HeroSection from '@/components/HeroSection.vue'
+import EditorToolbar from './modules/EditorToolbar.vue'
+import CoverUploader from './modules/CoverUploader.vue'
+import TocEditor from './modules/TocEditor.vue'
+import PreviewOverlay from './modules/PreviewOverlay.vue'
 
 defineOptions({ name: 'WriteView' })
 
@@ -37,9 +39,9 @@ const uploading = ref(false)
 const uploadError = ref('')
 
 const coverImageUrl = ref('')
-const coverUploading = ref(false)
-const coverError = ref('')
-const coverInputRef = ref<HTMLInputElement | null>(null)
+
+// 预览覆盖层
+const previewVisible = ref(false)
 
 const editorRef = ref<{ textarea?: HTMLTextAreaElement } | null>(null)
 const fileInputRef = ref<HTMLInputElement | null>(null)
@@ -74,7 +76,6 @@ watch(
     content.value = ''
     category.value = ''
     coverImageUrl.value = ''
-    coverError.value = ''
     fetchError.value = ''
     if (isEdit.value) fetchArticle()
   },
@@ -122,6 +123,76 @@ const handleSubmit = async () => {
   }
 }
 
+// ── 文本插入(工具栏 / 目录编辑器 / 图片上传共用) ──
+const insertText = (text: string) => {
+  const textarea = editorRef.value?.textarea as HTMLTextAreaElement | undefined
+  if (!textarea) {
+    content.value += `\n${text}`
+    return
+  }
+  const start = textarea.selectionStart
+  const end = textarea.selectionEnd
+  content.value = content.value.slice(0, start) + text + content.value.slice(end)
+  nextTick(() => {
+    textarea.focus()
+    textarea.selectionStart = textarea.selectionEnd = start + text.length
+  })
+}
+
+// ── 工具栏 ──
+/** 选区包裹: 有选中文字则包裹,否则插占位符 */
+const wrapText = (prefix: string, suffix: string, placeholder: string) => {
+  const textarea = editorRef.value?.textarea as HTMLTextAreaElement | undefined
+  if (!textarea) return
+  const start = textarea.selectionStart
+  const end = textarea.selectionEnd
+  const selected = content.value.slice(start, end)
+  if (selected) {
+    insertText(`${prefix}${selected}${suffix}`)
+  } else {
+    insertText(`${prefix}${placeholder}${suffix}`)
+    // 选中占位符方便用户直接替换
+    nextTick(() => {
+      const pos = start + prefix.length
+      textarea.focus()
+      textarea.selectionStart = pos
+      textarea.selectionEnd = pos + placeholder.length
+    })
+  }
+}
+
+const toolBold = () => wrapText('**', '**', '粗体')
+const toolItalic = () => wrapText('*', '*', '斜体')
+const toolStrikethrough = () => wrapText('~~', '~~', '删除线')
+const toolCode = () => wrapText('`', '`', '代码')
+const toolLink = () => wrapText('[', '](url)', '链接')
+const toolQuote = () => {
+  const textarea = editorRef.value?.textarea as HTMLTextAreaElement | undefined
+  if (!textarea) return
+  const start = textarea.selectionStart
+  const lineStart = content.value.lastIndexOf('\n', start - 1) + 1
+  const before = content.value.slice(0, lineStart)
+  const after = content.value.slice(lineStart)
+  content.value = `${before}> ${after}`
+  nextTick(() => {
+    textarea.focus()
+    textarea.selectionStart = textarea.selectionEnd = start + 2
+  })
+}
+
+const onToolCommand = (cmd: 'bold' | 'italic' | 'strike' | 'code' | 'link' | 'quote') => {
+  const handlers = {
+    bold: toolBold,
+    italic: toolItalic,
+    strike: toolStrikethrough,
+    code: toolCode,
+    link: toolLink,
+    quote: toolQuote,
+  }
+  handlers[cmd]()
+}
+
+// ── 正文插图上传 ──
 const triggerFilePicker = () => {
   fileInputRef.value?.click()
 }
@@ -156,21 +227,6 @@ const handleFileChange = async (e: Event) => {
   ;(e.target as HTMLInputElement).value = ''
 }
 
-const insertText = (text: string) => {
-  const textarea = editorRef.value?.textarea as HTMLTextAreaElement | undefined
-  if (!textarea) {
-    content.value += `\n${text}`
-    return
-  }
-  const start = textarea.selectionStart
-  const end = textarea.selectionEnd
-  content.value = content.value.slice(0, start) + text + content.value.slice(end)
-  nextTick(() => {
-    textarea.focus()
-    textarea.selectionStart = textarea.selectionEnd = start + text.length
-  })
-}
-
 const handlePaste = (e: ClipboardEvent) => {
   const items = e.clipboardData?.items
   if (!items) return
@@ -182,38 +238,6 @@ const handlePaste = (e: ClipboardEvent) => {
       return
     }
   }
-}
-
-const triggerCoverPicker = () => {
-  coverInputRef.value?.click()
-}
-
-const handleCoverChange = async (e: Event) => {
-  const file = (e.target as HTMLInputElement).files?.[0]
-  if (!file) return
-  if (file.size > 5 * 1024 * 1024) {
-    coverError.value = '封面图片不能超过 5MB'
-    ElMessage.error('封面图片不能超过 5MB')
-    return
-  }
-  coverUploading.value = true
-  coverError.value = ''
-  try {
-    const res = await uploadImage(file)
-    coverImageUrl.value = res.url
-    ElMessage.success('封面上传成功')
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : '封面上传失败'
-    coverError.value = msg
-    ElMessage.error(msg)
-  } finally {
-    coverUploading.value = false
-  }
-  ;(e.target as HTMLInputElement).value = ''
-}
-
-const removeCover = () => {
-  coverImageUrl.value = ''
 }
 </script>
 
@@ -231,100 +255,117 @@ const removeCover = () => {
       <el-button @click="router.push('/')">返回首页</el-button>
     </div>
 
-    <!-- Form -->
+    <!-- Form: 编辑器 + 元数据侧栏 -->
     <form v-else class="write-form" @submit.prevent="handleSubmit">
-      <el-input v-model="title" placeholder="文章标题" size="large" :disabled="saving" />
-
-      <!-- Cover image uploader -->
-      <div class="cover-uploader">
-        <input
-          ref="coverInputRef"
-          type="file"
-          accept="image/*"
-          style="display: none"
-          @change="handleCoverChange"
-        />
-        <div v-if="!coverImageUrl" class="cover-placeholder" @click="triggerCoverPicker">
-          <span class="placeholder-icon"><el-icon :size="28"><PictureFilled /></el-icon></span>
-          <span>{{ coverUploading ? '上传中...' : '点击上传封面图片' }}</span>
-          <span class="placeholder-hint">支持 JPG / PNG / WebP，最大 5MB</span>
-        </div>
-        <div v-else class="cover-preview" @click="triggerCoverPicker">
-          <img :src="coverImageUrl" alt="封面预览" />
-          <div class="cover-preview-overlay">
-            <el-button size="small" circle type="danger" @click.stop="removeCover">
-              <el-icon><Delete /></el-icon>
-            </el-button>
-          </div>
-        </div>
-        <span v-if="coverError" class="cover-error">{{ coverError }}</span>
-      </div>
-
-      <el-autocomplete
-        v-model="category"
-        :fetch-suggestions="
-          (q: string, cb: any) =>
-            cb(
-              q
-                ? categories.filter((c) => c.includes(q)).map((c) => ({ value: c }))
-                : categories.map((c) => ({ value: c })),
-            )
-        "
-        placeholder="分类(可选,输入新的或选已有)"
-        :disabled="saving"
-        clearable
+      <!-- 正文插图隐藏输入 -->
+      <input
+        ref="fileInputRef"
+        type="file"
+        accept="image/*"
+        style="display: none"
+        @change="handleFileChange"
       />
 
-      <div class="editor-toolbar">
-        <input
-          ref="fileInputRef"
-          type="file"
-          accept="image/*"
-          style="display: none"
-          @change="handleFileChange"
-        />
-        <el-button size="small" :disabled="uploading" @click="triggerFilePicker">
-          <el-icon v-if="!uploading"><Picture /></el-icon>
-          {{ uploading ? '上传中...' : '插入图片' }}
-        </el-button>
-        <span v-if="uploadError" class="toolbar-error">{{ uploadError }}</span>
-      </div>
+      <el-row :gutter="24">
+        <!-- 编辑器 -->
+        <el-col :xs="24" :md="15">
+          <div class="editor-pane">
+            <EditorToolbar :uploading="uploading" @command="onToolCommand" @insert-image="triggerFilePicker" />
 
-      <div class="editor-area">
-        <div class="editor-pane">
-          <el-input
-            ref="editorRef"
-            v-model="content"
-            type="textarea"
-            placeholder="Markdown 正文..."
-            :rows="18"
-            :disabled="saving"
-            resize="vertical"
-            @paste="handlePaste"
-          />
-        </div>
-        <div class="preview-pane">
-          <div class="preview-label">预览</div>
-          <SafeContent v-if="previewHtml" :html="previewHtml" />
-          <p v-else class="preview-hint">输入内容后自动预览</p>
-        </div>
-      </div>
+            <el-input
+              ref="editorRef"
+              v-model="content"
+              type="textarea"
+              placeholder="Markdown 正文..."
+              :rows="18"
+              :disabled="saving"
+              resize="vertical"
+              @paste="handlePaste"
+            />
+          </div>
+        </el-col>
 
-      <p v-if="saveError" class="save-error">{{ saveError }}</p>
+        <!-- 元数据侧栏 -->
+        <el-col :xs="24" :md="9">
+          <div class="sidebar-card">
+            <el-tabs default-value="info">
+              <!-- 信息: 标题 / 封面 / 分类 -->
+              <el-tab-pane label="信息" name="info">
+                <div class="sidebar-field">
+                  <label class="sidebar-label">标题</label>
+                  <el-input
+                    v-model="title"
+                    placeholder="文章标题..."
+                    size="large"
+                    :disabled="saving"
+                  />
+                </div>
 
-      <div class="form-actions">
-        <el-button @click="router.back()" :disabled="saving">取消</el-button>
-        <el-button type="primary" :loading="saving" native-type="submit">
-          {{ saving ? '保存中...' : '发布' }}
-        </el-button>
-      </div>
+                <div class="sidebar-field">
+                  <label class="sidebar-label">封面</label>
+                  <CoverUploader v-model="coverImageUrl" />
+                </div>
+
+                <div class="sidebar-field">
+                  <label class="sidebar-label">分类</label>
+                  <el-autocomplete
+                    v-model="category"
+                    :fetch-suggestions="
+                      (q: string, cb: any) =>
+                        cb(
+                          q
+                            ? categories.filter((c) => c.includes(q)).map((c) => ({ value: c }))
+                            : categories.map((c) => ({ value: c })),
+                        )
+                    "
+                    placeholder="输入新的或选已有"
+                    :disabled="saving"
+                    clearable
+                  />
+                </div>
+
+                <span v-if="uploadError" class="toolbar-error">{{ uploadError }}</span>
+                <p v-if="saveError" class="save-error">{{ saveError }}</p>
+              </el-tab-pane>
+
+              <!-- 目录: 标题管理 -->
+              <el-tab-pane label="目录" name="toc">
+                <TocEditor
+                  :content="content"
+                  @insert="insertText"
+                  @update:content="content = $event"
+                />
+              </el-tab-pane>
+            </el-tabs>
+
+            <!-- 操作按钮: 始终可见 -->
+            <div class="sidebar-actions">
+              <el-button @click="previewVisible = true">预览</el-button>
+              <el-button type="primary" :loading="saving" native-type="submit">
+                {{ saving ? '保存中...' : '发布' }}
+              </el-button>
+              <el-button @click="router.back()" :disabled="saving">取消</el-button>
+            </div>
+          </div>
+        </el-col>
+      </el-row>
     </form>
+
+    <!-- 预览覆盖层 -->
+    <PreviewOverlay
+      v-model="previewVisible"
+      :title="title"
+      :html="previewHtml"
+      :cover-image="coverImageUrl"
+      :category="category"
+      :author-name="authStore.username"
+    />
   </div>
 </template>
 
 <style lang="scss" scoped>
 .write-page {
-  max-width: 960px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 0 $spacing-md;
 }
@@ -344,128 +385,76 @@ const removeCover = () => {
 }
 
 .write-form {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-md;
-}
-
-.cover-uploader {
-  margin-bottom: $spacing-xs;
-}
-
-.cover-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  height: 140px;
-  border: 2px dashed var(--color-border);
-  border-radius: $radius-md;
-  cursor: pointer;
-  color: var(--color-text-muted);
-  background: linear-gradient(to bottom, var(--color-bg-page), var(--color-bg-card));
-  transition:
-    border-color 0.2s,
-    color 0.2s,
-    background 0.2s;
-  font-size: 13px;
-
-  .placeholder-icon {
-    font-size: 28px;
-    color: var(--color-primary);
-    margin-bottom: 2px;
-  }
-
-  .placeholder-hint {
-    font-size: 11px;
-    color: var(--color-text-placeholder);
-  }
-
-  &:hover {
-    border-color: var(--color-primary);
-    color: var(--color-primary);
-    background: linear-gradient(to bottom, var(--color-primary-bg), var(--color-bg-card));
+  .el-row {
+    max-width: 1100px;
+    margin: 0 auto;
   }
 }
 
-.cover-preview {
-  position: relative;
-  width: 100%;
-  height: 180px;
-  border-radius: $radius-md;
-  overflow: hidden;
-  cursor: pointer;
-  img {
-    @include cover-img;
-  }
-  &-overlay {
-    position: absolute;
-    top: $spacing-sm;
-    right: $spacing-sm;
-    opacity: 0;
-    transition: opacity 0.2s;
-  }
-  &:hover &-overlay {
-    opacity: 1;
-  }
-}
-
-.cover-error {
-  display: inline-block;
-  margin-top: $spacing-xs;
-  font-size: $font-size-small;
-  color: var(--color-danger);
-}
-
-.editor-area {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: $spacing-md;
-  min-height: 400px;
-}
-
+// ── 编辑器(卡片) ──
 .editor-pane {
+  background: var(--color-bg-card);
+  border-radius: $radius-lg;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden; // 圆角裁切
+  padding: $spacing-lg;
+
+  // 工具栏顶边与侧栏 card 内 el-tabs 顶边对齐
+  .editor-toolbar {
+    margin: -$spacing-lg;
+    margin-bottom: $spacing-md;
+    padding: 0 $spacing-lg;
+  }
+
   :deep(textarea) {
     font-family: 'Fira Code', 'Cascadia Code', monospace;
-    font-size: 15px;
+    font-size: 16px;
     line-height: 1.8;
+    min-height: 60vh;
+    border: none; // 卡片自带边框感,去掉 textarea 默认边框
+    border-radius: 0;
+    box-shadow: none;
   }
 }
 
-.preview-pane {
+// ── 元数据侧栏 ──
+.sidebar-card {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
   background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: $radius-md;
-  padding: $spacing-md;
-  overflow-y: auto;
+  border-radius: $radius-lg;
   box-shadow: var(--shadow-sm);
+  padding: 2px $spacing-lg;
+  position: sticky;
+  top: calc($header-height + $spacing-lg);
 }
 
-.preview-label {
+.sidebar-field {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.sidebar-label {
   font-size: $font-size-small;
-  color: var(--color-text-placeholder);
-  margin-bottom: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
 }
 
-.preview-hint {
-  margin: 0;
-  color: var(--color-text-placeholder);
-  font-size: $font-size-small;
+.sidebar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  padding-top: $spacing-md;
+  border-top: 1px solid var(--color-border-light);
 }
 
+// ── 错误提示 ──
 .save-error {
   margin: 0;
   font-size: $font-size-small;
   color: var(--color-danger);
-}
-
-.editor-toolbar {
-  display: flex;
-  align-items: center;
-  gap: $spacing-sm;
 }
 
 .toolbar-error {
@@ -473,11 +462,11 @@ const removeCover = () => {
   color: var(--color-danger);
 }
 
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: $spacing-sm;
-  padding-top: $spacing-md;
-  border-top: 1px solid var(--color-border-light);
+// ── 移动端 ──
+@media (max-width: $breakpoint-md) {
+  .sidebar-card {
+    position: static; // 取消 sticky
+    margin-top: $spacing-sm;
+  }
 }
 </style>

@@ -90,7 +90,7 @@ onMounted(fetchArticles)
     <template v-else>
       <ArticleTimeline :articles="articles" show-excerpt>
         <template #actions="{ article }">
-          <el-button size="small" @click="router.push(`/write?id=${article._id}`)">编辑</el-button>
+          <el-button size="small" type="primary" @click="router.push(`/write?id=${article._id}`)">编辑</el-button>
           <el-button
             size="small"
             type="danger"

@@ -1,7 +1,6 @@
 import request from '@/services/request'
 import { compressImage } from '@/utils/image'
-
-const BFF = import.meta.env.VITE_BFF_URL
+import { BFF } from '@/utils/env'
 
 /**
  * 上传图片到 CloudBase Storage

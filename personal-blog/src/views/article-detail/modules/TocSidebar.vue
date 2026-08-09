@@ -247,11 +247,12 @@ onBeforeUnmount(() => {
     display: block;
     position: sticky;
     top: calc($header-height + $spacing-lg);
+    // justify-self: flex-end;
     align-self: flex-start;
     flex-shrink: 0;
     width: 150px;
     padding: $spacing-md $spacing-sm;
-    border-left: 1px solid var(--color-border-light);
+    border-left: 2px solid var(--color-border-light);
   }
 }
 

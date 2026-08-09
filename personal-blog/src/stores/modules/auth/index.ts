@@ -9,7 +9,6 @@ export const useAuthStore = defineStore('auth', () => {
   const refreshTokens = ref(localStorage.getItem('refresh_token') || undefined)
   const username = ref(localStorage.getItem('username') || undefined)
   const isLogin = computed(() => Boolean(token.value))
-  // const isRefreshToken = computed(() => Boolean(refreshTokens.value));
   const uid = computed(() => {
     if (!token.value) return null
     try {
@@ -39,6 +38,13 @@ export const useAuthStore = defineStore('auth', () => {
     username.value = undefined
   }
 
+  /** 登录失效统一处理: 清 token + 提示 + 跳登录页 */
+  const sessionExpired = (message: string) => {
+    clearLocalToken()
+    ElMessage({ message, type: 'error', duration: 3000, placement: 'top' })
+    router.push('/login')
+  }
+
   const userlogin = async (loginName: string, password: string) => {
     try {
       const response = await login({ username: loginName, password })
@@ -59,28 +65,14 @@ export const useAuthStore = defineStore('auth', () => {
 
   const refreshUserToken = async () => {
     if (!refreshTokens.value) {
-      clearLocalToken()
-      ElMessage({
-        message: '登录失效，请重新登录。',
-        type: 'error',
-        duration: 3000,
-        placement: 'top',
-      })
-      router.push('/login')
+      sessionExpired('登录失效，请重新登录。')
       throw new Error('No refresh token available')
     }
     try {
       const response = await refreshToken({ refresh_token: refreshTokens.value })
       setLocalToken(response.access_token, response.refresh_token)
     } catch (error) {
-      clearLocalToken()
-      ElMessage({
-        message: '登录失效，请重新登录。',
-        type: 'error',
-        duration: 3000,
-        placement: 'top',
-      })
-      router.push('/login')
+      sessionExpired('登录失效，请重新登录。')
       throw error
     }
   }
@@ -94,6 +86,5 @@ export const useAuthStore = defineStore('auth', () => {
     setLocalToken,
     clearLocalToken,
     userlogin,
-    // isRefreshToken,
   }
 })

@@ -10,3 +10,30 @@ export function fmtDate(ts: number, withTime = false): string {
   if (withTime) return `${date} ${pad(d.getHours())}:${pad(d.getMinutes())}`
   return date
 }
+
+export interface YearGroup {
+  year: number
+  months: { month: number; articles: API.Articles.Article[] }[]
+}
+
+/** 文章按年/月分组,时间降序(归档/时间轴共用) */
+export function groupArticlesByYearMonth(articles: API.Articles.Article[]): YearGroup[] {
+  const years = new Map<number, Map<number, API.Articles.Article[]>>()
+  for (const a of articles) {
+    const d = new Date(a.createdAt)
+    const y = d.getFullYear()
+    const m = d.getMonth() + 1
+    if (!years.has(y)) years.set(y, new Map())
+    const months = years.get(y)!
+    if (!months.has(m)) months.set(m, [])
+    months.get(m)!.push(a)
+  }
+  return [...years.entries()]
+    .sort((a, b) => b[0] - a[0])
+    .map(([year, months]) => ({
+      year,
+      months: [...months.entries()]
+        .sort((a, b) => b[0] - a[0])
+        .map(([month, list]) => ({ month, articles: list })),
+    }))
+}

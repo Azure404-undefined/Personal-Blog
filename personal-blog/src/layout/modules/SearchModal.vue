@@ -5,6 +5,7 @@ import { useAppStore } from '@/stores/modules/app'
 import { getArticles } from '@/services/api/articles'
 import { Search, Close } from '@element-plus/icons-vue'
 import DOMPurify from 'dompurify'
+import { excerpt } from '@/utils/text'
 
 defineOptions({ name: 'SearchModal' })
 
@@ -105,13 +106,6 @@ const highlight = (text: string, q: string) => {
   return sanitizeHtml(text.replace(regex, '<mark>$1</mark>'))
 }
 
-const excerpt = (md: string, max = 100) => {
-  const text = md
-    .replace(/[#*>`[\]()!_~]/g, '')
-    .replace(/\s+/g, ' ')
-    .trim()
-  return text.length > max ? text.slice(0, max) + '...' : text
-}
 </script>
 
 <template>

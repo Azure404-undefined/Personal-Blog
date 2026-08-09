@@ -23,13 +23,6 @@
   color: var(--color-danger);
 }
 
-// ── 页面标题 ──
-@mixin page-title {
-  margin: 0 0 $spacing-lg;
-  font-size: $font-size-h2;
-  font-weight: 600;
-}
-
 // ── 分页容器 ──
 @mixin pagination-wrap {
   display: flex;
@@ -151,21 +144,22 @@
     margin: 0 0 20px;
   }
 
+  // h2: 左侧色条标记,一眼区分主次
   :deep(h2) {
     font-size: 22px;
-    font-weight: 600;
+    font-weight: 700;
     color: var(--color-text-primary);
-    margin: 32px 0 12px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--color-border-light);
+    margin: 40px 0 14px;
+    padding-left: 14px;
+    border-left: 3px solid var(--color-primary);
     line-height: 1.4;
   }
 
   :deep(h3) {
-    font-size: 19px;
+    font-size: 20px;
     font-weight: 600;
     color: var(--color-text-primary);
-    margin: 28px 0 10px;
+    margin: 32px 0 12px;
     line-height: 1.4;
   }
 
@@ -173,19 +167,19 @@
     font-size: $font-size-body;
     font-weight: 600;
     color: var(--color-text-primary);
-    margin: 24px 0 8px;
+    margin: 28px 0 8px;
     line-height: 1.4;
   }
 
   :deep(blockquote) {
-    margin: 20px 0;
-    padding: 12px 20px;
+    margin: 24px 0;
+    padding: 14px 20px;
     border-left: 4px solid var(--color-primary);
     background: var(--color-bg-hover);
     border-radius: 0 $radius-md $radius-md 0;
-    color: var(--color-text-secondary);
-    font-size: 16px;
-    line-height: 1.7;
+    color: var(--color-text-primary);
+    font-size: $font-size-body;
+    line-height: 1.8;
 
     p {
       margin: 0;

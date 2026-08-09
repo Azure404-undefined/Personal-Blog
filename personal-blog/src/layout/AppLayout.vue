@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import AppHeader from './modules/AppHeader.vue'
 import AppFooter from './modules/AppFooter.vue'
-import LoginModal from '@/components/LoginModal.vue'
-import SearchModal from '@/components/SearchModal.vue'
-import BackToTop from '@/components/BackToTop.vue'
+import LoginModal from './modules/LoginModal.vue'
+import SearchModal from './modules/SearchModal.vue'
+import BackToTop from './modules/BackToTop.vue'
 </script>
 
 <template>

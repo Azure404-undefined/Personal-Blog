@@ -1,13 +1,12 @@
 import axios from 'axios'
 import { useAuthStore } from '@/stores/modules/auth'
+import { BFF } from '@/utils/env'
 
 let isRefreshingToken: boolean = false // 标记是否正在刷新 token
-// let isOnece: boolean = false; // 标记是否已经刷新过一次 token
 let refreshPromise: Promise<void> | null = null // 存储刷新 token 的 Promise
-// let originalRequestQueue: Array<() => void> = []; // 存储原始请求的队列
 
 const request = axios.create({
-  baseURL: import.meta.env.VITE_BFF_URL,
+  baseURL: BFF,
   timeout: 15000,
   headers: {
     'Content-Type': 'application/json',
@@ -46,7 +45,6 @@ request.interceptors.response.use(
           isRefreshingToken = false
           refreshPromise = null // 清空刷新 token 的 Promise
         })
-        // return request(originalRequest);
       }
       // 如果正在刷新 token，则等待刷新完成后再重试原始请求
       await refreshPromise
@@ -55,7 +53,6 @@ request.interceptors.response.use(
     }
     if (error.response?.status === 403) {
       // 处理禁止访问错误
-      // router.push("/403");
       return Promise.reject(new Error('您没有权限访问该资源，请联系管理员。'))
     }
     if (error.response?.status === 400) {

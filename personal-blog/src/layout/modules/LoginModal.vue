@@ -2,7 +2,7 @@
 import { watch } from 'vue'
 import { useAppStore } from '@/stores/modules/app'
 import { Close } from '@element-plus/icons-vue'
-import LoginForm from './LoginForm.vue'
+import LoginForm from '@/components/LoginForm.vue'
 
 defineOptions({ name: 'LoginModal' })
 

@@ -1,18 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { groupArticlesByYearMonth } from '@/utils/date'
 import TimelineEntry from './TimelineEntry.vue'
 
 defineOptions({ name: 'ArticleTimeline' })
-
-interface MonthGroup {
-  month: number
-  articles: API.Articles.Article[]
-}
-
-interface YearGroup {
-  year: number
-  months: MonthGroup[]
-}
 
 const props = withDefaults(
   defineProps<{
@@ -25,26 +16,7 @@ const props = withDefaults(
 )
 
 // 按年/月分组,保持时间降序
-const groups = computed<YearGroup[]>(() => {
-  const years = new Map<number, Map<number, API.Articles.Article[]>>()
-  for (const a of props.articles) {
-    const d = new Date(a.createdAt)
-    const y = d.getFullYear()
-    const m = d.getMonth() + 1
-    if (!years.has(y)) years.set(y, new Map())
-    const months = years.get(y)!
-    if (!months.has(m)) months.set(m, [])
-    months.get(m)!.push(a)
-  }
-  return [...years.entries()]
-    .sort((a, b) => b[0] - a[0])
-    .map(([year, months]) => ({
-      year,
-      months: [...months.entries()]
-        .sort((a, b) => b[0] - a[0])
-        .map(([month, list]) => ({ month, articles: list })),
-    }))
-})
+const groups = computed(() => groupArticlesByYearMonth(props.articles))
 </script>
 
 <template>

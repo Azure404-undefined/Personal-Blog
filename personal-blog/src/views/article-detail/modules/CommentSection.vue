@@ -321,8 +321,8 @@ watch(
 
 <style lang="scss" scoped>
 .comment-section {
-  margin-top: $spacing-2xl;
-  padding-top: $spacing-xl;
+  // margin-top: $spacing-2xl;
+  // padding-top: $spacing-xl;
   border-top: 1px solid var(--color-border-light);
 }
 

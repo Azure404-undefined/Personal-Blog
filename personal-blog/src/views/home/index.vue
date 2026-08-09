@@ -1,17 +1,13 @@
 <script setup lang="ts">
-import { ref, watch, onMounted, computed } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { ref, watch, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { getArticles, getCategories } from '@/services/api/articles'
-import { fmtDate } from '@/utils/date'
-import { coverUrl } from '@/utils/image'
-import { avatarInitial } from '@/utils/avatar'
-import { categoryColor } from '@/utils/category'
-import { excerpt } from '@/utils/text'
 import HeroSection from '@/components/HeroSection.vue'
+import CategoryFilter from './modules/CategoryFilter.vue'
+import ArticleCard from './modules/ArticleCard.vue'
 
 defineOptions({ name: 'HomeView' })
 
-const router = useRouter()
 const route = useRoute()
 
 const loading = ref(true)
@@ -22,11 +18,6 @@ const page = ref(1)
 const pageSize = 10
 const category = ref((route.query.category as string) || '')
 const categories = ref<string[]>([])
-const MAX_VISIBLE_TABS = 5
-
-const visibleCats = computed(() => categories.value.slice(0, MAX_VISIBLE_TABS))
-const overflowCats = computed(() => categories.value.slice(MAX_VISIBLE_TABS))
-const showOverflow = computed(() => overflowCats.value.length > 0)
 
 const fetchArticles = async () => {
   loading.value = true
@@ -47,7 +38,8 @@ const fetchArticles = async () => {
   }
 }
 
-const onCategoryChange = () => {
+const onCategoryChange = (val: string) => {
+  category.value = val
   page.value = 1
   fetchArticles()
 }
@@ -82,40 +74,12 @@ watch(
     <HeroSection />
 
     <!-- 分类筛选 -->
-    <div v-if="categories.length" class="filter-bar">
-      <button
-        :class="['cat-tag', { 'cat-tag--active': !category }]"
-        @click="category = ''; onCategoryChange()"
-      >
-        全部
-      </button>
-      <button
-        v-for="cat in visibleCats"
-        :key="cat"
-        :class="['cat-tag', { 'cat-tag--active': category === cat }]"
-        @click="
-          category = cat;
-          onCategoryChange()
-        "
-      >
-        {{ cat }}
-      </button>
-      <el-select
-        v-if="showOverflow"
-        :model-value="overflowCats.includes(category) ? category : ''"
-        placeholder="更多"
-        size="small"
-        class="cat-overflow"
-        @change="
-          (val: string) => {
-            category = val
-            onCategoryChange()
-          }
-        "
-      >
-        <el-option v-for="cat in overflowCats" :key="cat" :label="cat" :value="cat" />
-      </el-select>
-    </div>
+    <CategoryFilter
+      v-if="categories.length"
+      :categories="categories"
+      v-model="category"
+      @update:model-value="onCategoryChange"
+    />
 
     <!-- loading: 骨架屏 -->
     <div v-if="loading" class="skeleton-grid">
@@ -143,40 +107,7 @@ watch(
     <!-- list -->
     <template v-else>
       <div class="article-list">
-        <article
-          v-for="item in articles"
-          :key="item._id"
-          class="article-card"
-          @click="router.push(`/articles/${item._id}`)"
-        >
-          <div class="card-cover-wrap">
-            <img
-              v-if="coverUrl(item.coverImage)"
-              :src="coverUrl(item.coverImage)"
-              :alt="item.title"
-              class="card-cover-img"
-              loading="lazy"
-            />
-            <div v-else class="card-cover-fallback" />
-            <span
-              v-if="item.category"
-              class="card-category-badge"
-              :style="{ backgroundColor: categoryColor(item.category) }"
-              >{{ item.category }}</span
-            >
-          </div>
-          <div class="card-body">
-            <h2 class="card-title">{{ item.title }}</h2>
-            <p class="card-excerpt">{{ excerpt(item.content) }}</p>
-            <div class="card-footer">
-              <span class="card-author-avatar">
-                {{ avatarInitial(item.authorName || '博主') }}
-              </span>
-              <span class="card-author-name">{{ item.authorName || '博主' }}</span>
-              <time class="card-date">{{ fmtDate(item.createdAt) }}</time>
-            </div>
-          </div>
-        </article>
+        <ArticleCard v-for="item in articles" :key="item._id" :article="item" />
       </div>
 
       <div v-if="total > pageSize" class="pagination-wrap">
@@ -200,44 +131,6 @@ watch(
   padding: 0 $spacing-md;
 }
 
-.filter-bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: $spacing-sm;
-  margin-bottom: $spacing-md;
-}
-
-.cat-tag {
-  border: 1px solid var(--color-border);
-  background: var(--color-bg-card);
-  color: var(--color-text-secondary);
-  padding: $spacing-xs 14px;
-  border-radius: $radius-xl;
-  font-size: $font-size-small;
-  cursor: pointer;
-  transition: all 0.2s;
-  &:hover {
-    color: var(--color-primary);
-    border-color: var(--color-primary-border);
-    background: var(--color-primary-bg);
-  }
-  &--active {
-    color: #fff;
-    background: var(--color-primary);
-    border-color: var(--color-primary);
-    &:hover {
-      color: #fff;
-      background: var(--color-primary-hover);
-      border-color: var(--color-primary-hover);
-    }
-  }
-}
-
-.cat-overflow {
-  width: 100px;
-}
-
 .state-box {
   @include state-box;
 }
@@ -258,105 +151,6 @@ watch(
   .article-list {
     grid-template-columns: 1fr;
   }
-}
-
-.article-card {
-  @include card-base;
-  @include reveal;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-}
-
-.card-cover-wrap {
-  @include cover-wrap;
-}
-
-.card-cover-img {
-  @include cover-img;
-}
-
-.card-cover-fallback {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, var(--color-border-light), var(--color-bg-hover));
-}
-
-.card-category-badge {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  padding: 3px 12px;
-  border-radius: $radius-sm;
-  font-size: $font-size-small;
-  font-weight: 500;
-  color: #fff;
-  line-height: 1.6;
-  pointer-events: none;
-}
-
-.card-body {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: $spacing-lg;
-}
-
-.card-title {
-  margin: 0 0 $spacing-sm;
-  font-size: $font-size-h2;
-  font-weight: 600;
-  color: var(--color-text-primary);
-  line-height: 1;
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-
-.card-excerpt {
-  margin: 0 0 10px;
-  font-size: $font-size-small;
-  color: var(--color-text-secondary);
-  line-height: 1.6;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.card-footer {
-  margin-top: auto;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.card-author-avatar {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: var(--color-primary);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 600;
-  flex-shrink: 0;
-  user-select: none;
-}
-
-.card-author-name {
-  font-size: $font-size-small;
-  font-weight: 500;
-  color: var(--color-text-secondary);
-}
-
-.card-date {
-  font-size: $font-size-small;
-  color: var(--color-text-placeholder);
-  margin-left: auto;
 }
 
 .pagination-wrap {

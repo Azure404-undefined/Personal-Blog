@@ -1,4 +1,4 @@
-const BFF = import.meta.env.VITE_BFF_URL || ''
+import { BFF } from '@/utils/env'
 
 /**
  * 封面 URL: 兼容 BFF 代理相对路径 /files/... 与绝对 http 地址
