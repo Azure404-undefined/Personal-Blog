@@ -42,6 +42,7 @@ const go = () => router.push(`/articles/${props.article._id}`)
       <h4 class="entry-title">{{ article.title }}</h4>
       <div class="entry-meta">
         <time>{{ fmtDate(article.createdAt) }}</time>
+        <span v-if="article.status === 'draft'" class="entry-status">草稿</span>
         <span
           v-if="article.category"
           class="entry-cat"
@@ -111,6 +112,15 @@ const go = () => router.push(`/articles/${props.article._id}`)
 
 .entry-cat {
   font-weight: 500;
+}
+
+.entry-status {
+  font-size: 11px;
+  color: var(--color-warning);
+  border: 1px solid var(--color-warning);
+  border-radius: $radius-sm;
+  padding: 0 5px;
+  line-height: 1.4;
 }
 
 .entry-excerpt {

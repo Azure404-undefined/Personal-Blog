@@ -12,12 +12,15 @@ import { ElMessage } from 'element-plus'
 import { useAuthStore } from '@/stores/modules/auth'
 import MarkdownIt from 'markdown-it'
 import HeroSection from '@/components/HeroSection.vue'
+import { usePageMeta } from '@/utils/meta'
 import EditorToolbar from './modules/EditorToolbar.vue'
 import CoverUploader from './modules/CoverUploader.vue'
 import TocEditor from './modules/TocEditor.vue'
 import PreviewOverlay from './modules/PreviewOverlay.vue'
 
 defineOptions({ name: 'WriteView' })
+
+usePageMeta(() => (isEdit.value ? '编辑文章' : '写文章'))
 
 const route = useRoute()
 const router = useRouter()
@@ -90,7 +93,7 @@ onMounted(() => {
   if (isEdit.value) fetchArticle()
 })
 
-const handleSubmit = async () => {
+const handleSubmit = async (asDraft = false) => {
   const t = title.value.trim()
   const c = content.value.trim()
   if (!t || !c) {
@@ -107,6 +110,7 @@ const handleSubmit = async () => {
       category: category.value || undefined,
       coverImage: coverImageUrl.value || undefined,
       authorName: authStore.username || '',
+      status: (asDraft ? 'draft' : 'published') as 'draft' | 'published',
     }
     if (isEdit.value) {
       await updateArticle(editId.value, payload)
@@ -256,7 +260,7 @@ const handlePaste = (e: ClipboardEvent) => {
     </div>
 
     <!-- Form: 编辑器 + 元数据侧栏 -->
-    <form v-else class="write-form" @submit.prevent="handleSubmit">
+    <form v-else class="write-form" @submit.prevent="handleSubmit()">
       <!-- 正文插图隐藏输入 -->
       <input
         ref="fileInputRef"
@@ -341,7 +345,10 @@ const handlePaste = (e: ClipboardEvent) => {
             <!-- 操作按钮: 始终可见 -->
             <div class="sidebar-actions">
               <el-button @click="previewVisible = true">预览</el-button>
-              <el-button type="primary" :loading="saving" native-type="submit">
+              <el-button :loading="saving" native-type="submit" @click="handleSubmit(true)">
+                {{ saving ? '保存中...' : '存草稿' }}
+              </el-button>
+              <el-button type="primary" :loading="saving" native-type="submit" @click="handleSubmit()">
                 {{ saving ? '保存中...' : '发布' }}
               </el-button>
               <el-button @click="router.back()" :disabled="saving">取消</el-button>
@@ -425,7 +432,7 @@ const handlePaste = (e: ClipboardEvent) => {
   background: var(--color-bg-card);
   border-radius: $radius-lg;
   box-shadow: var(--shadow-sm);
-  padding: 2px $spacing-lg;
+  padding: 2px $spacing-lg $spacing-lg;
   position: sticky;
   top: calc($header-height + $spacing-lg);
 }

@@ -59,7 +59,6 @@ watch(
     } else if (directions.top) {
       appStore.setHeaderVisibility(true)
     }
-    console.log(y.value)
   },
 )
 </script>

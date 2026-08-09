@@ -12,6 +12,7 @@ const props = defineProps<{
   category?: string
   authorName?: string
   updatedAt: number
+  status?: 'draft' | 'published'
 }>()
 
 // 无封面时的默认占位图(与 HeroSection 同款)
@@ -26,7 +27,10 @@ const author = computed(() => props.authorName || '博主')
     <img :src="cover" :alt="title" class="banner-img" loading="lazy" />
     <div class="banner-overlay" />
     <div class="banner-text">
-      <el-tag v-if="category" size="small" class="banner-tag">{{ category }}</el-tag>
+      <div class="banner-tags">
+        <el-tag v-if="category" size="small" class="banner-tag">{{ category }}</el-tag>
+        <el-tag v-if="status === 'draft'" size="small" class="banner-tag banner-tag--draft">草稿</el-tag>
+      </div>
       <h1 class="banner-title">{{ title }}</h1>
       <div class="banner-author-row">
         <span class="banner-author-avatar">{{ avatarInitial(author) }}</span>
@@ -110,10 +114,20 @@ const author = computed(() => props.authorName || '博主')
   }
 }
 
+.banner-tags {
+  display: flex;
+  gap: $spacing-sm;
+}
+
 .banner-tag {
   background: rgba(255, 255, 255, 0.18);
   border: 1px solid rgba(255, 255, 255, 0.6);
   color: #fff;
+
+  &--draft {
+    background: rgba(230, 162, 60, 0.25);
+    border-color: rgba(230, 162, 60, 0.8);
+  }
 }
 
 .banner-title {

@@ -12,6 +12,7 @@ declare namespace API {
       owner: string
       authorName?: string
       authorAvatar?: string
+      status?: 'draft' | 'published'
       _openid: string
       createBy: string
       updateBy: string
@@ -38,6 +39,7 @@ declare namespace API {
       coverImage?: string
       authorName?: string
       authorAvatar?: string
+      status?: 'draft' | 'published'
     }
 
     interface updateArticleParams {
@@ -45,6 +47,7 @@ declare namespace API {
       content?: string
       category?: string
       coverImage?: string
+      status?: 'draft' | 'published'
     }
   }
 }

@@ -179,7 +179,7 @@ exports.main = async (event) => {
     //  Public read
     // ────────────────────────────────────────
 
-    // GET /articles —— 列表(?mine=true 只看自己的)
+    // GET /articles —— 列表(?mine=true 只看自己的, 含草稿; 公开列表只显示已发布)
     if (method === 'GET' && /^\/articles\/?$/.test(path)) {
       const pageSize = Math.min(parseInt(q.pageSize, 10), 200);
       const pageNumber = parseInt(q.page, 1);
@@ -187,6 +187,9 @@ exports.main = async (event) => {
       if (q.mine === 'true') {
         const uid = requireUid(headers);
         where.ownerUid = { $eq: uid };
+      } else {
+        // 公开列表排除草稿;$ne 兼容 status 为 null/undefined 的存量文章
+        where.status = { $ne: 'draft' };
       }
       if (q.category) {
         where.category = { $eq: q.category };
@@ -222,11 +225,15 @@ exports.main = async (event) => {
       return reply(200, { records, total, page: resultPage, pageSize });
     }
 
-    // GET /articles/:id —— 详情
+    // GET /articles/:id —— 详情(草稿仅作者可见)
     const mDetailGet = method === 'GET' && path.match(/^\/articles\/([^/]+)$/);
     if (mDetailGet) {
       const record = await modelGet(mDetailGet[1]);
       if (!record) return reply(404, { error: 'not found' });
+      if (record.status === 'draft') {
+        const uid = getUid(headers);
+        if (!uid || record.ownerUid !== uid) return reply(404, { error: 'not found' });
+      }
       return reply(200, record);
     }
 
@@ -314,7 +321,12 @@ exports.main = async (event) => {
       if (!input.title || !input.content) {
         return reply(400, { error: 'title and content required' });
       }
-      const createData = { title: input.title, content: input.content, ownerUid: uid };
+      const createData = {
+        title: input.title,
+        content: input.content,
+        ownerUid: uid,
+        status: input.status === 'draft' ? 'draft' : 'published',
+      };
       if (input.category) createData.category = input.category;
       if (input.coverImage) createData.coverImage = input.coverImage;
       if (input.authorName) createData.authorName = input.authorName;
@@ -340,6 +352,7 @@ exports.main = async (event) => {
       if (patch.content !== undefined) updates.content = patch.content;
       if (patch.category !== undefined) updates.category = patch.category || null;
       if (patch.coverImage !== undefined) updates.coverImage = patch.coverImage || null;
+      if (patch.status !== undefined) updates.status = patch.status === 'draft' ? 'draft' : 'published';
       if (!Object.keys(updates).length) return reply(400, { error: 'no fields to update' });
 
       const { data } = await models.articles.update({

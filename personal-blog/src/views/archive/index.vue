@@ -3,8 +3,11 @@ import { ref, onMounted } from 'vue'
 import { getArticles } from '@/services/api/articles'
 import HeroSection from '@/components/HeroSection.vue'
 import ArticleTimeline from '@/components/ArticleTimeline.vue'
+import { usePageMeta } from '@/utils/meta'
 
 defineOptions({ name: 'ArchiveView' })
+
+usePageMeta('文章归档', 'Azure 博客全部文章的时间轴归档')
 
 const loading = ref(true)
 const error = ref('')

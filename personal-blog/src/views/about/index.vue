@@ -3,8 +3,11 @@ import { computed } from 'vue'
 import MarkdownIt from 'markdown-it'
 import HeroSection from '@/components/HeroSection.vue'
 import SafeContent from '@/components/safeContent.vue'
+import { usePageMeta } from '@/utils/meta'
 
 defineOptions({ name: 'AboutView' })
+
+usePageMeta('关于我', 'Azure 的个人简介与博客介绍')
 
 const md = new MarkdownIt({ breaks: true, linkify: true })
 

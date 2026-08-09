@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import { usePageMeta } from '@/utils/meta'
 
 defineOptions({ name: 'NotFoundView' })
+
+usePageMeta('页面不存在', '404 页面不存在')
 
 const router = useRouter()
 </script>

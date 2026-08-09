@@ -5,8 +5,11 @@ import { getArticles, getCategories } from '@/services/api/articles'
 import HeroSection from '@/components/HeroSection.vue'
 import CategoryFilter from './modules/CategoryFilter.vue'
 import ArticleCard from './modules/ArticleCard.vue'
+import { usePageMeta } from '@/utils/meta'
 
 defineOptions({ name: 'HomeView' })
+
+usePageMeta('写代码 · 写文章 · 记录生活', 'Azure 的个人博客，记录技术路上的思考与实践')
 
 const route = useRoute()
 

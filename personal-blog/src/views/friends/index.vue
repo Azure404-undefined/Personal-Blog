@@ -4,9 +4,12 @@ import { getFriends, createFriend, deleteFriend } from '@/services/api/friends'
 import { useAuthStore } from '@/stores/modules/auth'
 import { avatarInitial } from '@/utils/avatar'
 import HeroSection from '@/components/HeroSection.vue'
+import { usePageMeta } from '@/utils/meta'
 import { ElMessageBox, ElMessage } from 'element-plus'
 
 defineOptions({ name: 'FriendsView' })
+
+usePageMeta('朋友们', 'Azure 的友情链接')
 
 const authStore = useAuthStore()
 

@@ -5,8 +5,11 @@ import { getMyArticles, deleteArticle } from '@/services/api/articles'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import HeroSection from '@/components/HeroSection.vue'
 import ArticleTimeline from '@/components/ArticleTimeline.vue'
+import { usePageMeta } from '@/utils/meta'
 
 defineOptions({ name: 'MyArticlesView' })
+
+usePageMeta('我的文章', '管理我发布的文章与草稿')
 
 const router = useRouter()
 

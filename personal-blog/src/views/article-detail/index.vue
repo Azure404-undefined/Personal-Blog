@@ -3,12 +3,20 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { getArticleById } from '@/services/api/articles'
 import { createMarkdownRenderer } from '@/utils/markdown'
+import { excerpt } from '@/utils/text'
+import { usePageMeta } from '@/utils/meta'
 import SafeContent from '@/components/safeContent.vue'
 import ArticleBanner from './modules/ArticleBanner.vue'
 import CommentSection from './modules/CommentSection.vue'
 import TocSidebar from './modules/TocSidebar.vue'
 
 defineOptions({ name: 'ArticleDetailView' })
+
+// SEO: 标题/描述随文章变化自动更新
+usePageMeta(
+  () => article.value?.title || '文章',
+  () => (article.value ? excerpt(article.value.content, 150) : ''),
+)
 
 const route = useRoute()
 const renderer = createMarkdownRenderer()
@@ -66,6 +74,7 @@ watch(() => route.params.id, fetchArticle)
         :category="article.category"
         :author-name="article.authorName"
         :updated-at="article.updatedAt"
+        :status="article.status"
       />
 
       <!-- 正文 + 目录: el-row 栅格,左侧占位与目录等宽,正文居中 -->

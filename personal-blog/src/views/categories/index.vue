@@ -4,8 +4,11 @@ import { useRouter } from 'vue-router'
 import { getArticles, getCategories } from '@/services/api/articles'
 import { categoryColor } from '@/utils/category'
 import HeroSection from '@/components/HeroSection.vue'
+import { usePageMeta } from '@/utils/meta'
 
 defineOptions({ name: 'CategoriesView' })
+
+usePageMeta('分类浏览', '按分类浏览 Azure 的博客文章')
 
 interface CategoryWithCount {
   name: string
