@@ -398,15 +398,13 @@ const handlePaste = (e: ClipboardEvent) => {
   }
 }
 
-// ── 编辑器(卡片) ──
 .editor-pane {
   background: var(--color-bg-card);
   border-radius: $radius-lg;
   box-shadow: var(--shadow-sm);
-  overflow: hidden; // 圆角裁切
+  overflow: hidden;
   padding: $spacing-lg;
 
-  // 工具栏顶边与侧栏 card 内 el-tabs 顶边对齐
   .editor-toolbar {
     margin: -$spacing-lg;
     margin-bottom: $spacing-md;
@@ -418,13 +416,12 @@ const handlePaste = (e: ClipboardEvent) => {
     font-size: 16px;
     line-height: 1.8;
     min-height: 60vh;
-    border: none; // 卡片自带边框感,去掉 textarea 默认边框
+    border: none;
     border-radius: 0;
     box-shadow: none;
   }
 }
 
-// ── 元数据侧栏 ──
 .sidebar-card {
   display: flex;
   flex-direction: column;
@@ -457,7 +454,6 @@ const handlePaste = (e: ClipboardEvent) => {
   border-top: 1px solid var(--color-border-light);
 }
 
-// ── 错误提示 ──
 .save-error {
   margin: 0;
   font-size: $font-size-small;
@@ -469,11 +465,14 @@ const handlePaste = (e: ClipboardEvent) => {
   color: var(--color-danger);
 }
 
-// ── 移动端 ──
 @media (max-width: $breakpoint-md) {
   .sidebar-card {
-    position: static; // 取消 sticky
+    position: static;
     margin-top: $spacing-sm;
+  }
+
+  .sidebar-actions {
+    gap: 0;
   }
 }
 </style>

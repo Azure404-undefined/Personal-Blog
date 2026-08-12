@@ -61,7 +61,7 @@ onMounted(() => {
     .catch(() => {})
 })
 
-// 监听 query 参数变化(同一路由导航时 onMounted 不触发)
+// 监听 query 参数变化
 watch(
   () => ({ q: route.query.q, cat: route.query.category }),
   ({ cat }) => {
@@ -160,7 +160,6 @@ watch(
   @include pagination-wrap;
 }
 
-// ── 骨架屏 ──
 .skeleton-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

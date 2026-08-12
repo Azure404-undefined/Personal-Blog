@@ -42,7 +42,6 @@ const author = computed(() => props.authorName || '博主')
 </template>
 
 <style lang="scss" scoped>
-// ── 封面 banner(页根,全宽) ──
 .detail-banner {
   position: relative;
   width: 99.7vw;
@@ -55,7 +54,6 @@ const author = computed(() => props.authorName || '博主')
   margin-bottom: $spacing-lg;
 }
 
-// 图片入场: 淡入 + 轻微缩放
 .banner-img {
   @include cover-img;
   animation: banner-reveal 0.6s ease-out both;
@@ -99,7 +97,6 @@ const author = computed(() => props.authorName || '博主')
   gap: $spacing-sm;
   padding: $header-height $spacing-lg 0;
   text-align: center;
-  // 文字后出: 图片就位后再浮现
   animation: banner-text-up 0.5s ease-out 0.3s both;
 }
 

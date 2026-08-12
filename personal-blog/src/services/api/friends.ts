@@ -1,4 +1,3 @@
-// 友链 API
 import request from '@/services/request'
 
 export const getFriends = () => {

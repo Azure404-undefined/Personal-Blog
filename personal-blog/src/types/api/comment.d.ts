@@ -26,7 +26,6 @@ declare namespace API {
       total: number
     }
 
-    /** 前端树形结构：一级评论 + 子回复 */
     interface TreeComment extends Comment {
       replies: Comment[]
     }

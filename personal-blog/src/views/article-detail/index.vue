@@ -67,7 +67,7 @@ watch(() => route.params.id, fetchArticle)
 
     <!-- content -->
     <template v-else-if="article">
-      <!-- 封面 banner: 页根渲染,不套 flex,全宽技巧可靠 -->
+      <!-- 封面 banner -->
       <ArticleBanner
         :title="article.title"
         :cover-image="article.coverImage"
@@ -109,12 +109,10 @@ watch(() => route.params.id, fetchArticle)
   padding: 0 $spacing-md;
 }
 
-// ── 栅格容器 ──
 .el-row {
   margin: 0 auto;
 }
 
-// ── 正文卡片: 与 banner 略微重叠形成层级 ──
 .content-card {
   background: var(--color-bg-card);
   border-radius: $radius-lg;
@@ -129,12 +127,10 @@ watch(() => route.params.id, fetchArticle)
   }
 }
 
-// 评论区卡片与正文保持间距
 .comment-card {
   margin-top: $spacing-lg;
 }
 
-// ── 正文 ──
 .detail-body {
   @include prose-typography;
   font-size: $font-size-body;

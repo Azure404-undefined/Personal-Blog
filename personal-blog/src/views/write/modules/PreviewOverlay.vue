@@ -80,7 +80,6 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
   padding: $spacing-md;
 }
 
-// 遮罩: fade
 .preview-fade-enter-active,
 .preview-fade-leave-active {
   transition: opacity 0.25s ease;
@@ -90,7 +89,6 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
   opacity: 0;
 }
 
-// 卡片: 从上滑入
 .preview-slide-enter-active,
 .preview-slide-leave-active {
   transition:

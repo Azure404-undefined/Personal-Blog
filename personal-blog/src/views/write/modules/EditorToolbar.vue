@@ -24,6 +24,7 @@ const emit = defineEmits<{
     <button type="button" class="tool-btn" title="删除线" @click="emit('command', 'strike')">
       <s>S</s>
     </button>
+    <span class="tool-sep" />
     <button
       type="button"
       class="tool-btn tool-btn--mono"
@@ -52,7 +53,7 @@ const emit = defineEmits<{
   display: flex;
   align-items: center;
   gap: 2px;
-  height: 40px; // 与 el-tabs 默认 nav 等高,视觉对齐
+  height: 40px;
   padding: 0 $spacing-sm;
   border-bottom: 2px solid var(--color-border-light);
 }

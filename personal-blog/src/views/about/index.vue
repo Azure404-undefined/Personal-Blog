@@ -11,7 +11,6 @@ usePageMeta('关于我', 'Azure 的个人简介与博客介绍')
 
 const md = new MarkdownIt({ breaks: true, linkify: true })
 
-// 关于页内容：直接编辑此 Markdown 即可
 const aboutMarkdown = `
 ## 关于我
 

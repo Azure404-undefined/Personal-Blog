@@ -220,13 +220,11 @@ watch(
   }
 }
 
-// ── 内部元素：统一亮色文字 ──
 .logo {
   flex-shrink: 0;
   margin-left: $spacing-lg;
 }
 
-// ── 登录态/未登录 logo（头像 + 用户名） ──
 .logo--user {
   display: flex;
   align-items: center;
@@ -306,17 +304,40 @@ watch(
     font-size: $font-size-small;
     padding: $spacing-xs $spacing-sm;
     border-radius: $radius-sm;
+    position: relative;
     transition:
       color 0.2s,
       background 0.2s;
 
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: $spacing-xs;
+      left: $spacing-sm;
+      right: $spacing-sm;
+      height: 2px;
+      background: var(--color-primary);
+      border-radius: 1px;
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.25s ease;
+    }
+
     &:hover {
       color: #fff;
       background: rgba(255, 255, 255, 0.3);
+
+      &::after {
+        transform: scaleX(1);
+      }
     }
 
     &.active {
       color: var(--color-primary);
+
+      &::after {
+        transform: scaleX(1);
+      }
     }
   }
 }
@@ -407,13 +428,11 @@ watch(
   background: rgba(255, 255, 255, 0.9);
 }
 
-// ── 导航链接（布局） ──
 .nav-links {
   display: flex;
   gap: $spacing-xs;
 }
 
-// ── 用户区 ──
 .user-area {
   margin-left: auto;
   margin-right: $spacing-lg;
@@ -422,7 +441,6 @@ watch(
   gap: $spacing-sm;
 }
 
-// ── 汉堡按钮 ──
 .hamburger {
   $size: 36px;
 
@@ -464,20 +482,17 @@ watch(
   }
 }
 
-// ── 菜单遮罩(Teleport 到 body,点击空白关闭) ──
 .menu-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 98; // 低于 header(100),高于页面内容
+  z-index: 98;
   background: rgba(0, 0, 0, 0.3);
 
-  // 桌面端汉堡菜单不可见,遮罩无意义
   @media (min-width: $breakpoint-md) {
     display: none;
   }
 }
 
-// ── 移动端 ──
 @media (max-width: $breakpoint-md) {
   .logo {
     margin-left: $spacing-md;

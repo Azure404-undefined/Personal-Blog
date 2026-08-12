@@ -16,7 +16,7 @@ const scrollToTop = () => {
 
 <template>
   <transition name="btp">
-    <button v-if="visible" class="back-to-top" @click="scrollToTop" aria-label="回到顶部">
+    <button v-if="visible" title="回到顶部" class="back-to-top" @click="scrollToTop" aria-label="回到顶部">
       <el-icon :size="18"><ArrowUp /></el-icon>
     </button>
   </transition>
@@ -53,7 +53,6 @@ const scrollToTop = () => {
   }
 }
 
-// ── 动画 ──
 .btp-enter-active,
 .btp-leave-active {
   transition: all 0.25s ease;

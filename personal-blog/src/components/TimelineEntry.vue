@@ -70,10 +70,17 @@ const go = () => router.push(`/articles/${props.article._id}`)
   padding: $spacing-sm 0;
   cursor: pointer;
   border-radius: $radius-sm;
-  transition: background 0.2s;
+  transition:
+    background 0.2s,
+    transform 0.25s ease;
 
   &:hover {
     background: var(--color-bg-hover);
+    transform: translateX(4px);
+
+    .entry-cover {
+      transform: scale(1.05);
+    }
   }
 }
 
@@ -85,6 +92,7 @@ const go = () => router.push(`/articles/${props.article._id}`)
   object-fit: cover;
   display: block;
   background: var(--color-bg-hover);
+  transition: transform 0.3s ease;
 }
 
 .entry-body {
@@ -147,6 +155,16 @@ const go = () => router.push(`/articles/${props.article._id}`)
   .entry-cover {
     width: 80px;
     height: 80px;
+  }
+
+  .entry-actions {
+    display: flex;
+    flex-direction: column;
+    :deep(.el-button+.el-button) {
+      margin-left: 0;
+      margin-top: $spacing-sm;
+
+    }
   }
 }
 </style>

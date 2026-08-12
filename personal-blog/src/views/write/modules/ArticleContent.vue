@@ -60,15 +60,14 @@ const date = computed(() => fmtDate(props.updatedAt ?? Date.now()))
   margin: 0 auto;
 }
 
-// ── 封面 banner ──
 .detail-banner {
   position: relative;
   width: 99.7vw;
   margin-left: calc(50% - 50vw);
-  margin-top: -$header-height; // 延伸到 header 后方
+  margin-top: -$header-height;
   height: calc(33vh + $header-height);
-  min-height: 252px; // 200 + 52
-  max-height: 452px; // 400 + 52
+  min-height: 252px;
+  max-height: 452px;
   overflow: hidden;
   margin-bottom: $spacing-lg;
 }
@@ -144,7 +143,6 @@ const date = computed(() => fmtDate(props.updatedAt ?? Date.now()))
   color: rgba(255, 255, 255, 0.9);
 }
 
-// ── 正文 ──
 .detail-body {
   @include prose-typography;
   @include reveal;
@@ -160,7 +158,6 @@ const date = computed(() => fmtDate(props.updatedAt ?? Date.now()))
   }
 }
 
-// ── 预览模式: banner 收缩在容器内 ──
 .article-content--contained {
   .detail-banner {
     width: 100%;

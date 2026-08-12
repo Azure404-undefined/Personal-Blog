@@ -63,6 +63,11 @@ const go = () => router.push(`/articles/${props.article._id}`)
 
 .card-cover-img {
   @include cover-img;
+  transition: transform 0.4s ease;
+
+  .article-card:hover & {
+    transform: scale(1.06);
+  }
 }
 
 .card-cover-fallback {
@@ -101,6 +106,11 @@ const go = () => router.push(`/articles/${props.article._id}`)
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+  transition: color 0.2s;
+
+  .article-card:hover & {
+    color: var(--color-primary);
+  }
 }
 
 .card-excerpt {

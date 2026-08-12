@@ -140,7 +140,6 @@ onMounted(fetchArticles)
   @include pagination-wrap;
 }
 
-// ── 骨架屏 ──
 .skeleton-list {
   display: flex;
   flex-direction: column;

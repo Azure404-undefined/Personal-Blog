@@ -1,4 +1,3 @@
-// 文章API
 import request from '@/services/request'
 
 export const getArticles = (params: API.Articles.getArticleParams) => {

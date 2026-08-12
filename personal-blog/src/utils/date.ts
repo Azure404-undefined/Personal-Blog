@@ -16,7 +16,7 @@ export interface YearGroup {
   months: { month: number; articles: API.Articles.Article[] }[]
 }
 
-/** 文章按年/月分组,时间降序(归档/时间轴共用) */
+/** 文章按年/月分组,时间降序 */
 export function groupArticlesByYearMonth(articles: API.Articles.Article[]): YearGroup[] {
   const years = new Map<number, Map<number, API.Articles.Article[]>>()
   for (const a of articles) {

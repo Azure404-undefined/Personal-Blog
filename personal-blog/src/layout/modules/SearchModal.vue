@@ -329,7 +329,6 @@ const highlight = (text: string, q: string) => {
   }
 }
 
-// ── 动画 ──
 .search-enter-active,
 .search-leave-active {
   transition: opacity 0.2s ease;

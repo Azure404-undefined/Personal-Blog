@@ -10,7 +10,6 @@ export function coverUrl(cover?: string): string {
 
 /**
  * Canvas 压缩图片，确保 base64 不超过网关 100KB 限制
- * 策略: 降 quality (0.7→0.2) → 降分辨率 (×0.7) → 重复，底线 400px
  */
 export const compressImage = (
   file: File,

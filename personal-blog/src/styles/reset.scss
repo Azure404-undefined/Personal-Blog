@@ -1,7 +1,3 @@
-// ═══════════════════════════════════════════════════
-//  全局 Reset（从 App.vue 迁移）
-// ═══════════════════════════════════════════════════
-
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -10,7 +6,6 @@ body {
 }
 
 // ── 主题切换渐变 ──
-// transition 不继承，必须用 * 让所有元素参与主题切换动画
 * {
   transition:
     background-color 0.4s ease,
@@ -72,15 +67,11 @@ textarea:focus-visible {
   }
 }
 
-// 滚动条 (Firefox & Chrome 121+) — 细滚动条，只作用于页面级
-// scrollbar-width 不继承，用 html 避免覆盖 ::-webkit-scrollbar 自定义样式
+// 滚动条 — 细滚动条，只作用于页面级
 html {
   scrollbar-width: thin;
   scrollbar-color: #cbd5e1 transparent;
 }
-
-// 全宽 banner/hero 元素用 99.8vw 避免与滚动条占位冲突造成横向溢出
-// 见 HeroSection.vue 和 article-detail/index.vue
 
 // 图片默认圆角
 img {

@@ -15,8 +15,6 @@ const props = defineProps<{ articleId: string }>()
 
 const router = useRouter()
 const authStore = useAuthStore()
-
-// ---- state ----
 const comments = ref<API.Comments.Comment[]>([])
 const loading = ref(true)
 const error = ref('')
@@ -34,9 +32,7 @@ const submitting = ref(false)
 // 二级回复折叠
 const expandedThreads = ref<Set<string>>(new Set())
 
-// ---- computed ----
 const treeComments = computed<API.Comments.TreeComment[]>(() => {
-  // !c.parentId 同时匹配 null 和 undefined（CloudBase 未设字段时返回 undefined）
   const roots = comments.value.filter((c) => !c.parentId)
   return roots.map((root) => ({
     ...root,
@@ -46,7 +42,6 @@ const treeComments = computed<API.Comments.TreeComment[]>(() => {
 
 const commentCount = computed(() => comments.value.length)
 
-// ---- methods ----
 const fetchComments = async () => {
   loading.value = true
   error.value = ''
@@ -294,7 +289,8 @@ watch(
         </button>
 
         <!-- 内联回复输入框 -->
-        <div v-if="activeReplyRootId === root._id" class="reply-box">
+        <Transition name="reply-expand">
+          <div v-if="activeReplyRootId === root._id" class="reply-box">
           <textarea
             v-model="replyContent"
             class="comment-textarea"
@@ -312,8 +308,9 @@ watch(
               提交
             </el-button>
           </div>
+          </div>
+          </Transition>
         </div>
-      </div>
       </template>
     </div>
   </div>
@@ -374,7 +371,6 @@ watch(
   color: var(--color-text-muted);
 }
 
-// ---- 根评论输入 ----
 .comment-post-root {
   margin-bottom: 20px;
 }
@@ -416,7 +412,6 @@ watch(
   }
 }
 
-// ---- 单条评论 ----
 .comment-item {
   padding: 14px 0;
 
@@ -508,7 +503,6 @@ watch(
   color: var(--color-danger);
 }
 
-// ---- 二级回复 ----
 .replies {
   margin-left: 48px;
   padding-left: 12px;
@@ -525,14 +519,30 @@ watch(
   }
 }
 
-// ---- 内联回复输入框 ----
+.reply-expand-enter-active,
+.reply-expand-leave-active {
+  transition:
+    opacity 0.2s ease,
+    max-height 0.25s ease;
+  overflow: hidden;
+}
+.reply-expand-enter-from,
+.reply-expand-leave-to {
+  opacity: 0;
+  max-height: 0;
+}
+.reply-expand-enter-to,
+.reply-expand-leave-from {
+  opacity: 1;
+  max-height: 160px;
+}
+
 .reply-box {
   margin-left: 48px;
   margin-top: $spacing-sm;
   margin-bottom: $spacing-sm;
 }
 
-// ---- 展开/收起 ----
 .replies-toggle {
   display: block;
   margin-left: 48px;
@@ -549,7 +559,6 @@ watch(
   }
 }
 
-// ---- 响应式 ----
 @media (max-width: $breakpoint-md) {
   .replies,
   .reply-box,

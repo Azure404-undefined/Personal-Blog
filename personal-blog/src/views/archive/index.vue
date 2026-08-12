@@ -33,21 +33,17 @@ onMounted(fetchArchive)
   <div class="archive-page">
     <HeroSection mini title="时间轴" />
 
-    <!-- loading -->
     <div v-if="loading" class="state-loading" />
 
-    <!-- error -->
     <div v-else-if="error" class="state-box">
       <p class="state-text error-text">{{ error }}</p>
       <el-button @click="fetchArchive">重试</el-button>
     </div>
 
-    <!-- empty -->
     <div v-else-if="!articles.length" class="state-box">
       <p class="state-text">还没有文章</p>
     </div>
 
-    <!-- timeline -->
     <div v-else class="archive-body">
       <ArticleTimeline :articles="articles" />
     </div>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useScroll } from '@vueuse/core'
 import { ArrowDown } from '@element-plus/icons-vue'
 
@@ -43,6 +43,21 @@ const bgImage = computed(() => {
   if (props.coverImage) return props.coverImage
   return props.mini ? miniDefaultCover : defaultCover
 })
+
+  // ── 问候语轮播 ──
+  const greetings = ['写代码', '写文章', '记录生活']
+  const greetingIndex = ref(0)
+  const currentGreeting = computed(() => greetings[greetingIndex.value]!)
+
+  let timer: ReturnType<typeof setInterval> | undefined
+  onMounted(() => {
+    if (!props.mini) {
+      timer = setInterval(() => {
+        greetingIndex.value = (greetingIndex.value + 1) % greetings.length
+      }, 3000)
+    }
+  })
+  onBeforeUnmount(() => clearInterval(timer))
 </script>
 
 <template>
@@ -59,7 +74,9 @@ const bgImage = computed(() => {
     <!-- 首页：问候语 -->
     <div v-if="!mini" class="hero-content" :style="{ opacity: greetingOpacity }">
       <h1 class="hero-greeting">Hi，我是 Azure</h1>
-      <p class="hero-sub">写代码 · 写文章 · 记录生活</p>
+      <Transition name="greeting" mode="out-in">
+        <span :key="currentGreeting" class="hero-sub">{{ currentGreeting }}</span>
+      </Transition>
       <span class="hero-scroll-hint"><el-icon :size="14"><ArrowDown /></el-icon> 向下滚动</span>
     </div>
 
@@ -75,15 +92,15 @@ const bgImage = computed(() => {
   position: relative;
   width: 99.7vw;
   margin-left: calc(50% - 50vw);
-  margin-top: -$header-height; // 延伸到 header 后方
-  margin-bottom: $header-bottom-margin; // 与内容区间隔
+  margin-top: -$header-height;
+  margin-bottom: $header-bottom-margin;
   height: calc(45vh + $header-height);
-  min-height: 352px; // 300 + 52
-  max-height: 552px; // 500 + 52
+  min-height: 352px;
+  max-height: 552px;
   overflow: hidden;
 
   &--mini {
-    height: 352px; // 300 + 52
+    height: 352px;
     min-height: auto;
     max-height: none;
   }
@@ -91,10 +108,9 @@ const bgImage = computed(() => {
 
 .hero-bg {
   position: absolute;
-  inset: -10px; // 略微溢出，缩放时不留白边
+  inset: -10px;
   background: center / cover no-repeat;
   will-change: transform;
-  // 入场: 仅淡入(transform 由滚动视差 inline style 控制)
   animation: hero-bg-in 0.6s ease-out both;
 }
 
@@ -138,7 +154,6 @@ const bgImage = computed(() => {
   color: #fff;
   text-align: center;
   padding: $header-height $spacing-md 0;
-  // 入场: 文字后出,上浮浮现
   animation: hero-text-up 0.5s ease-out 0.3s both;
 }
 
@@ -166,6 +181,15 @@ const bgImage = computed(() => {
   font-size: 16px;
   opacity: 0.85;
   text-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
+}
+
+.greeting-enter-active,
+.greeting-leave-active {
+  transition: opacity 0.4s ease;
+}
+.greeting-enter-from,
+.greeting-leave-to {
+  opacity: 0;
 }
 
 .hero-scroll-hint {

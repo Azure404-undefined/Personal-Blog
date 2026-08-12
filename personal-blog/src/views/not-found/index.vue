@@ -11,7 +11,7 @@ const router = useRouter()
 
 <template>
   <div class="not-found-page">
-    <!-- 内联 SVG: 文字色用 CSS 变量,自动适配暗色模式; emoji 黄色双模式通用 -->
+    <!-- 内联 SVG: 文字色用 CSS 变量,自动适配暗色模式 -->
     <svg
       class="nf-svg"
       viewBox="0 0 1600 1000"
@@ -19,8 +19,8 @@ const router = useRouter()
       role="img"
       aria-label="404 页面不存在"
     >
-      <!-- Decorative error / code doodles -->
-      <g class="doodle" font-size="52" opacity="0.75">
+
+      <g class="doodle" font-size="52" opacity="0.75" aria-hidden="true">
         <text x="300" y="210">?!</text>
         <text x="1160" y="205">¯\_(ツ)_/¯</text>
         <text x="225" y="405">”</text>
@@ -31,7 +31,6 @@ const router = useRouter()
         <text x="1235" y="770">#@%!</text>
       </g>
 
-      <!-- Small scribble -->
       <path
         d="M930 190
            C900 160 900 220 935 225
@@ -48,7 +47,6 @@ const router = useRouter()
       <text x="485" y="515" class="num" font-size="285">4</text>
       <text x="930" y="515" class="num" font-size="285">4</text>
 
-      <!-- Round emoji as the zero -->
       <g transform="translate(800 425)">
         <circle r="82" fill="#FFBE24" />
         <ellipse cx="-27" cy="-13" rx="12" ry="18" fill="#202938" />
@@ -104,7 +102,6 @@ const router = useRouter()
   padding: $spacing-xl $spacing-md;
 }
 
-// 内联 SVG: 颜色随主题 CSS 变量切换
 .nf-svg {
   width: 100%;
   max-width: 500px;
@@ -121,6 +118,17 @@ const router = useRouter()
 
   :deep(.doodle) {
     fill: var(--color-text-placeholder);
+    animation: doodle-float 3s ease-in-out infinite;
+  }
+}
+
+@keyframes doodle-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
   }
 }
 

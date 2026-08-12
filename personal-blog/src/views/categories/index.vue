@@ -25,7 +25,6 @@ const fetchCategories = async () => {
   error.value = ''
   try {
     const names = await getCategories()
-    // 并行取每个分类的文章数(博客规模小,N+1 可接受)
     const withCount = await Promise.all(
       names.map(async (name) => {
         try {
@@ -174,7 +173,6 @@ onMounted(fetchCategories)
   flex-shrink: 0;
 }
 
-// ── 骨架屏 ──
 .skeleton-grid {
   max-width: 720px;
   margin: 0 auto;

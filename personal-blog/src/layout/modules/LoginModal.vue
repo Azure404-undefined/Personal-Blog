@@ -88,7 +88,6 @@ const onLoginSuccess = () => {
   }
 }
 
-// ── 弹窗动画 ──
 .modal-enter-active,
 .modal-leave-active {
   transition: opacity 0.2s ease;

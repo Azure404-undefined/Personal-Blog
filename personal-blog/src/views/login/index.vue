@@ -4,7 +4,6 @@ import LoginForm from '@/components/LoginForm.vue'
 
 defineOptions({ name: 'LoginView' })
 
-// 右侧面板图片：Unsplash 占位，之后找到合适的本地图，改为 import 引入即可
 const PANEL_IMAGE = 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=600&h=800&fit=crop'
 
 const imgError = ref(false)
@@ -87,7 +86,6 @@ const imgError = ref(false)
   display: block;
 }
 
-// 图片加载失败时的渐变占位
 .login-right-fallback {
   position: absolute;
   inset: 0;

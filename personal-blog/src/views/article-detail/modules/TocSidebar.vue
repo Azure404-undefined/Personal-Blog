@@ -109,7 +109,7 @@ onBeforeUnmount(() => {
 
 <style lang="scss" scoped>
 .toc-sidebar {
-  display: none; // 桌面端由 media query 开启
+  display: none;
 }
 
 .toc-title {
@@ -164,16 +164,14 @@ onBeforeUnmount(() => {
   }
 }
 
-// ── 移动端: 浮动按钮 ──
 .toc-float {
   display: none;
 }
 
-// 点击空白关闭的遮罩
 .toc-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 98; // 低于 popup(99),高于页面内容
+  z-index: 98;
   background: rgba(0, 0, 0, 0.3);
 }
 
@@ -189,7 +187,7 @@ onBeforeUnmount(() => {
 .toc-fab {
   position: fixed;
   right: 32px;
-  bottom: 88px; // BackToTop(40px+32px) 上方
+  bottom: 88px;
   z-index: 99;
   width: 40px;
   height: 40px;
@@ -241,13 +239,11 @@ onBeforeUnmount(() => {
   transform: translateY(8px);
 }
 
-// ── 响应式 ──
 @media (min-width: $breakpoint-lg) {
   .toc-sidebar {
     display: block;
     position: sticky;
     top: calc($header-height + $spacing-lg);
-    // justify-self: flex-end;
     align-self: flex-start;
     flex-shrink: 0;
     width: 150px;

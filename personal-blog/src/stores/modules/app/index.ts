@@ -59,20 +59,16 @@ export const useAppStore = defineStore('app', () => {
   return {
     isMobile,
     isMenuOpen,
-    // 只读暴露,状态修改统一走 setHeaderVisibility
     setHeaderVisible: readonly(setHeaderVisible),
     setHeaderVisibility,
     toggleMenu,
     closeMenu,
-    // 主题
     isDark,
     theme,
     toggleTheme,
-    // 搜索弹窗
     showSearchModal,
     openSearchModal,
     closeSearchModal,
-    // 登录弹窗
     showLoginModal,
     openLoginModal,
     closeLoginModal,
