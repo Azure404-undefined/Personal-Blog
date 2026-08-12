@@ -35,9 +35,9 @@ const greetingOpacity = computed(() => {
 
 // 默认封面图（Unsplash 冷色调网图占位）
 const defaultCover =
-  'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=70'
+  'src/assets/imgs/shouye.jpg'
 const miniDefaultCover =
-  'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1200&q=50'
+  'src/assets/imgs/sanjay-hona-YDfUMO4FLwM-unsplash.jpg'
 
 const bgImage = computed(() => {
   if (props.coverImage) return props.coverImage

@@ -114,7 +114,7 @@ onMounted(fetchFriends)
 
 <template>
   <div class="friends-page">
-    <HeroSection mini title="朋友们" />
+    <HeroSection mini cover-image="src/assets/imgs/友链.png" title="朋友们" />
 
     <div class="friends-body">
       <!-- 登录后: 添加按钮 -->

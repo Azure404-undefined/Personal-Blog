@@ -31,7 +31,7 @@ onMounted(fetchArchive)
 
 <template>
   <div class="archive-page">
-    <HeroSection mini title="时间轴" />
+    <HeroSection mini cover-image="src/assets/imgs/归档.jpg" title="时间轴" />
 
     <div v-if="loading" class="state-loading" />
 
