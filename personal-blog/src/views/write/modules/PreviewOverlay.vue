@@ -37,7 +37,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
 </script>
 
 <template>
-  <!-- 预览覆盖层: 手动实现 + 过渡动画,避开 el-dialog 动画闪烁 -->
+  <!-- 预览覆盖层 -->
   <Teleport to="body">
     <Transition name="preview-fade">
       <div v-if="modelValue" class="preview-overlay" @click.self="close">

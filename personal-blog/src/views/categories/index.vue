@@ -5,6 +5,7 @@ import { getArticles, getCategories } from '@/services/api/articles'
 import { categoryColor } from '@/utils/category'
 import HeroSection from '@/components/HeroSection.vue'
 import { usePageMeta } from '@/utils/meta'
+import categoriesImg from '@/assets/imgs/categories.jpg'
 
 defineOptions({ name: 'CategoriesView' })
 
@@ -52,7 +53,7 @@ onMounted(fetchCategories)
 
 <template>
   <div class="categories-page">
-    <HeroSection mini cover-image="src/assets/imgs/分类.jpg" title="分类" />
+    <HeroSection mini :cover-image="categoriesImg" title="分类" />
 
     <!-- loading: 骨架屏 -->
     <div v-if="loading" class="skeleton-grid">

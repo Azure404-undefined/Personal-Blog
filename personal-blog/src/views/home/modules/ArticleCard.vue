@@ -19,14 +19,14 @@ const go = () => router.push(`/articles/${props.article._id}`)
 <template>
   <article class="article-card" @click="go">
     <div class="card-cover-wrap">
+      <div v-if="coverUrl(article.coverImage) === ''" class="card-cover-fallback" />
       <img
-        v-if="coverUrl(article.coverImage)"
+        v-else
         :src="coverUrl(article.coverImage)"
         :alt="article.title"
         class="card-cover-img"
         loading="lazy"
       />
-      <div v-else class="card-cover-fallback" />
       <span
         v-if="article.category"
         class="card-category-badge"
@@ -58,7 +58,7 @@ const go = () => router.push(`/articles/${props.article._id}`)
 }
 
 .card-cover-wrap {
-  @include cover-wrap;
+  @include cover-wrap(200px);
 }
 
 .card-cover-img {
@@ -73,7 +73,7 @@ const go = () => router.push(`/articles/${props.article._id}`)
 .card-cover-fallback {
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, var(--color-border-light), var(--color-bg-hover));
+  background: linear-gradient(135deg, #409eff 0%, #00bcd4 100%);
 }
 
 .card-category-badge {

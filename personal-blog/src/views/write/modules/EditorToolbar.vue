@@ -28,7 +28,7 @@ const emit = defineEmits<{
     <button
       type="button"
       class="tool-btn tool-btn--mono"
-      title="行内代码"
+      title="代码块"
       @click="emit('command', 'code')"
     >
       &lt;/&gt;

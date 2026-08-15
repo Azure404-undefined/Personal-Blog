@@ -5,6 +5,7 @@ import { useAuthStore } from '@/stores/modules/auth'
 import { avatarInitial } from '@/utils/avatar'
 import HeroSection from '@/components/HeroSection.vue'
 import { usePageMeta } from '@/utils/meta'
+import friendsImg from '@/assets/imgs/friends.png'
 import { ElMessageBox, ElMessage } from 'element-plus'
 
 defineOptions({ name: 'FriendsView' })
@@ -114,7 +115,7 @@ onMounted(fetchFriends)
 
 <template>
   <div class="friends-page">
-    <HeroSection mini cover-image="src/assets/imgs/友链.png" title="朋友们" />
+    <HeroSection mini :cover-image="friendsImg" title="朋友们" />
 
     <div class="friends-body">
       <!-- 登录后: 添加按钮 -->

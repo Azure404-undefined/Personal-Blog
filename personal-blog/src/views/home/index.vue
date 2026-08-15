@@ -5,6 +5,7 @@ import { getArticles, getCategories } from '@/services/api/articles'
 import HeroSection from '@/components/HeroSection.vue'
 import CategoryFilter from './modules/CategoryFilter.vue'
 import ArticleCard from './modules/ArticleCard.vue'
+import ProfileSidebar from './modules/ProfileSidebar.vue'
 import { usePageMeta } from '@/utils/meta'
 
 defineOptions({ name: 'HomeView' })
@@ -84,52 +85,63 @@ watch(
       @update:model-value="onCategoryChange"
     />
 
-    <!-- loading: 骨架屏 -->
-    <div v-if="loading" class="skeleton-grid">
-      <div v-for="n in 4" :key="n" class="skeleton-card">
-        <div class="skeleton-cover" />
-        <div class="skeleton-body">
-          <div class="skeleton-line" style="width:80%" />
-          <div class="skeleton-line" style="width:60%" />
-          <div class="skeleton-line" style="width:40%" />
+    <!-- 桌面: 文章区 + 右侧简介/统计; 移动端: 侧栏隐藏,布局不变 -->
+    <el-row :gutter="24">
+      <!-- 文章主区 -->
+      <el-col :xs="24" :lg="17">
+        <!-- loading: 骨架屏 -->
+        <div v-if="loading" class="skeleton-grid">
+          <div v-for="n in 4" :key="n" class="skeleton-card">
+            <div class="skeleton-cover" />
+            <div class="skeleton-body">
+              <div class="skeleton-line" style="width:80%" />
+              <div class="skeleton-line" style="width:60%" />
+              <div class="skeleton-line" style="width:40%" />
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
 
-    <!-- error -->
-    <div v-else-if="error" class="state-box">
-      <p class="state-text error-text">{{ error }}</p>
-      <el-button @click="fetchArticles">重试</el-button>
-    </div>
+        <!-- error -->
+        <div v-else-if="error" class="state-box">
+          <p class="state-text error-text">{{ error }}</p>
+          <el-button @click="fetchArticles">重试</el-button>
+        </div>
 
-    <!-- empty -->
-    <div v-else-if="!articles.length" class="state-box">
-      <p class="state-text">还没有文章</p>
-    </div>
+        <!-- empty -->
+        <div v-else-if="!articles.length" class="state-box">
+          <p class="state-text">还没有文章</p>
+        </div>
 
-    <!-- list -->
-    <template v-else>
-      <div class="article-list">
-        <ArticleCard v-for="item in articles" :key="item._id" :article="item" />
-      </div>
+        <!-- list -->
+        <template v-else>
+          <div class="article-list">
+            <ArticleCard v-for="item in articles" :key="item._id" :article="item" />
+          </div>
 
-      <div v-if="total > pageSize" class="pagination-wrap">
-        <el-pagination
-          background
-          layout="prev, pager, next"
-          :total="total"
-          :page-size="pageSize"
-          :current-page="page"
-          @current-change="onPageChange"
-        />
-      </div>
-    </template>
+          <div v-if="total > pageSize" class="pagination-wrap">
+            <el-pagination
+              background
+              layout="prev, pager, next"
+              :total="total"
+              :page-size="pageSize"
+              :current-page="page"
+              @current-change="onPageChange"
+            />
+          </div>
+        </template>
+      </el-col>
+
+      <!-- 右侧简介 + 统计 -->
+      <el-col :xs="0" :lg="7">
+        <ProfileSidebar :article-count="total" :category-count="categories.length" />
+      </el-col>
+    </el-row>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .home-page {
-  max-width: 720px;
+  max-width: 1160px;
   margin: 0 auto;
   padding: 0 $spacing-md;
 }
@@ -177,7 +189,7 @@ watch(
 }
 
 .skeleton-cover {
-  @include skeleton-cover;
+  @include skeleton-cover(200px);
 }
 
 .skeleton-body {

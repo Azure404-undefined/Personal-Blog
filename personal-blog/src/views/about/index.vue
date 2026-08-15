@@ -4,6 +4,7 @@ import MarkdownIt from 'markdown-it'
 import HeroSection from '@/components/HeroSection.vue'
 import SafeContent from '@/components/safeContent.vue'
 import { usePageMeta } from '@/utils/meta'
+import aboutImg from '@/assets/imgs/ykaiavu-cat-8438334.jpg'
 
 defineOptions({ name: 'AboutView' })
 
@@ -39,7 +40,7 @@ const html = computed(() => md.render(aboutMarkdown))
 
 <template>
   <div class="about-page">
-    <HeroSection mini cover-image="src/assets/imgs/ykaiavu-cat-8438334.jpg" title="关于我" />
+    <HeroSection mini :cover-image="aboutImg" title="关于我" />
 
     <div class="about-body">
       <SafeContent :html="html" />

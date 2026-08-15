@@ -4,7 +4,7 @@ import LoginForm from '@/components/LoginForm.vue'
 
 defineOptions({ name: 'LoginView' })
 
-const PANEL_IMAGE = 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=600&h=800&fit=crop'
+// const PANEL_IMAGE = 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=600&h=800&fit=crop'
 
 const imgError = ref(false)
 </script>
@@ -21,7 +21,7 @@ const imgError = ref(false)
       <div class="login-right">
         <img
           v-if="!imgError"
-          :src="PANEL_IMAGE"
+          src="../../assets/imgs/jiedao.jpg"
           alt=""
           class="login-right-img"
           loading="eager"

@@ -4,6 +4,7 @@ import { getArticles } from '@/services/api/articles'
 import HeroSection from '@/components/HeroSection.vue'
 import ArticleTimeline from '@/components/ArticleTimeline.vue'
 import { usePageMeta } from '@/utils/meta'
+import archiveImg from '@/assets/imgs/archive.jpg'
 
 defineOptions({ name: 'ArchiveView' })
 
@@ -31,7 +32,7 @@ onMounted(fetchArchive)
 
 <template>
   <div class="archive-page">
-    <HeroSection mini cover-image="src/assets/imgs/归档.jpg" title="时间轴" />
+    <HeroSection mini :cover-image="archiveImg" title="时间轴" />
 
     <div v-if="loading" class="state-loading" />
 

@@ -33,11 +33,12 @@ const greetingOpacity = computed(() => {
   return Math.max(0, 1 - y.value / 300)
 })
 
-// 默认封面图（Unsplash 冷色调网图占位）
-const defaultCover =
-  'src/assets/imgs/shouye.jpg'
-const miniDefaultCover =
-  'src/assets/imgs/sanjay-hona-YDfUMO4FLwM-unsplash.jpg'
+// 默认封面图（Vite import,构建期哈希化,生产可用）
+import shouyeImg from '@/assets/imgs/shouye.jpg'
+import miniDefaultImg from '@/assets/imgs/sanjay-hona-YDfUMO4FLwM-unsplash.jpg'
+
+const defaultCover = shouyeImg
+const miniDefaultCover = miniDefaultImg
 
 const bgImage = computed(() => {
   if (props.coverImage) return props.coverImage

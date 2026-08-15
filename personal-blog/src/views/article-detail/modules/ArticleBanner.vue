@@ -15,16 +15,16 @@ const props = defineProps<{
   status?: 'draft' | 'published'
 }>()
 
-// 无封面时的默认占位图(与 HeroSection 同款)
-const DEFAULT_COVER = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=70'
+// const DEFAULT_COVER = '../../../assets/imgs/default-cover.jpg'
 
-const cover = computed(() => coverUrl(props.coverImage) || DEFAULT_COVER)
+const cover = computed(() => coverUrl(props.coverImage))
 const author = computed(() => props.authorName || '博主')
 </script>
 
 <template>
   <div class="detail-banner">
-    <img :src="cover" :alt="title" class="banner-img" loading="lazy" />
+    <img v-if="cover === ''" src="../../../assets/imgs/default-cover.jpg" :alt="title" class="banner-img" loading="lazy" />
+    <img v-else :src="cover" :alt="title" class="banner-img" loading="lazy" />
     <div class="banner-overlay" />
     <div class="banner-text">
       <div class="banner-tags">

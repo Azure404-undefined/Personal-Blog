@@ -168,7 +168,7 @@ const wrapText = (prefix: string, suffix: string, placeholder: string) => {
 const toolBold = () => wrapText('**', '**', '粗体')
 const toolItalic = () => wrapText('*', '*', '斜体')
 const toolStrikethrough = () => wrapText('~~', '~~', '删除线')
-const toolCode = () => wrapText('`', '`', '代码')
+const toolCode = () => wrapText('\n```\n', '\n```\n', '代码')
 const toolLink = () => wrapText('[', '](url)', '链接')
 const toolQuote = () => {
   const textarea = editorRef.value?.textarea as HTMLTextAreaElement | undefined
