@@ -7,3 +7,6 @@ docs
 # Claude
 .claude/
 CLAUDE.md
+
+# CloudBase deploy config (contains envId)
+cloudbaserc.json
