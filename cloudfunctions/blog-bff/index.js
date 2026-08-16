@@ -1,9 +1,11 @@
 // 极简博客 BFF · 完整版(v2 修复)
 const cloudbase = require('@cloudbase/node-sdk');
 const https = require('https');
+const { createLoginLimiter } = require('./rate-limit');
 
-const ENV = 'private-project-d8ficqljdf83631a';
-const app = cloudbase.init({ env: ENV });
+// envId 不在代码中硬编码：优先读环境变量，云函数内无参 init 自动使用当前环境
+const ENV = process.env.ENV_ID || process.env.TCB_ENV || '';
+const app = cloudbase.init(ENV ? { env: ENV } : {});
 const models = app.models;
 
 // ---- helpers ----
@@ -49,6 +51,18 @@ const requireUid = (headers) => {
   if (!uid) throw { statusCode: 401, message: 'login required' };
   return uid;
 };
+
+/** 取调用方 IP：x-forwarded-for 首个 → x-real-ip → unknown */
+const getClientIp = (headers) => {
+  const h = headers || {};
+  const fwd = h['x-forwarded-for'] || h['X-Forwarded-For'] || '';
+  const first = fwd.split(',')[0].trim();
+  if (first) return first;
+  return h['x-real-ip'] || h['X-Real-IP'] || 'unknown';
+};
+
+// 登录失败限流（实例内内存实现，不跨实例）
+const loginLimiter = createLoginLimiter();
 
 /** 取单条记录(models.get 语法不稳定,改用已验证的 list) */
 const modelGet = async (id) => {
@@ -152,6 +166,11 @@ exports.main = async (event) => {
     //  Auth
     // ────────────────────────────────────────
     if (method === 'POST' && path === '/auth/login') {
+      const ip = getClientIp(headers);
+      const now = Date.now();
+      if (loginLimiter.isBlocked(ip, now)) {
+        return reply(429, { error: 'too many failed attempts, try again later' });
+      }
       let creds;
       try { creds = JSON.parse(event.body || '{}'); } catch (_) {
         return reply(400, { error: 'invalid JSON body' });
@@ -159,8 +178,14 @@ exports.main = async (event) => {
       if (!creds.username || !creds.password) {
         return reply(400, { error: 'username and password required' });
       }
-      const token = await proxyLogin(creds.username, creds.password);
-      return reply(200, token);
+      try {
+        const token = await proxyLogin(creds.username, creds.password);
+        loginLimiter.clear(ip);
+        return reply(200, token);
+      } catch (e) {
+        loginLimiter.recordFail(ip, Date.now());
+        throw e;
+      }
     }
 
     if (method === 'POST' && path === '/auth/refresh') {
@@ -440,7 +465,7 @@ exports.main = async (event) => {
     // ────────────────────────────────────────
 
     if (method === 'GET' && path === '/ping') {
-      return reply(200, { pong: true, env: ENV });
+      return reply(200, { pong: true });
     }
 
     // ────────────────────────────────────────
