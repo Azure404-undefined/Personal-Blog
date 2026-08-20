@@ -140,3 +140,8 @@
   /* 全局背景 */
   color-scheme: dark;
 }
+
+/* Element Plus 会在分页根元素上重设该变量，需要在组件层覆盖 */
+.el-pagination.is-background {
+  --el-pagination-button-bg-color: var(--color-primary-bg);
+}

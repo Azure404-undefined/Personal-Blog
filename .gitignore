@@ -8,5 +8,8 @@ docs
 .claude/
 CLAUDE.md
 
+# Local coding-agent instructions (kept out of repository history)
+/AGENTS.md
+
 # CloudBase deploy config (contains envId)
 cloudbaserc.json

@@ -77,18 +77,18 @@ watch(
   <div class="home-page">
     <HeroSection />
 
-    <!-- 分类筛选 -->
-    <CategoryFilter
-      v-if="categories.length"
-      :categories="categories"
-      v-model="category"
-      @update:model-value="onCategoryChange"
-    />
-
     <!-- 桌面: 文章区 + 右侧简介/统计; 移动端: 侧栏隐藏,布局不变 -->
     <el-row :gutter="24">
       <!-- 文章主区 -->
       <el-col :xs="24" :lg="17">
+        <!-- 分类筛选：与文章列表共用主列宽度 -->
+        <CategoryFilter
+          v-if="categories.length"
+          :categories="categories"
+          v-model="category"
+          @update:model-value="onCategoryChange"
+        />
+
         <!-- loading: 骨架屏 -->
         <div v-if="loading" class="skeleton-grid">
           <div v-for="n in 4" :key="n" class="skeleton-card">
