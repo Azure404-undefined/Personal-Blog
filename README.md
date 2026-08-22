@@ -5,7 +5,7 @@
 **在线演示**：
 
 - Vercel：`https://personal-blog-cjy.vercel.app`
-- 腾讯云：`https://<envId>.webapps.tcloudbase.com`（TODO：部署后替换）
+- 腾讯云：`https://personal-blog-private-project-d8ficqljdf83631a.webapps.tcloudbase.com`
 
 ## 架构
 

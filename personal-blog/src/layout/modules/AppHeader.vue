@@ -29,7 +29,7 @@ const route = useRoute()
 const { y, directions } = useScroll(window, { throttle: 100 })
 
 // 无 hero 封面的页面(如关于页)不启用透明逻辑,避免浅色背景上白字不可读
-const isOverHero = computed(() => route.path !== '/about' && y.value < 200)
+const isOverHero = computed(() => route.path !== '/about' && route.path !== '/404' && y.value < 200)
 
 const headerBgOpacity = computed(() => {
   if (y.value < 20) return 0
