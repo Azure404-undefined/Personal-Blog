@@ -1,6 +1,6 @@
 # Personal Blog 项目协作说明
 
-本文件是本地开发代理的项目上下文。它位于仓库根目录，但已在根目录 .gitignore 中忽略，不应通过 git add -f 加入提交。
+本文件是本地开发代理的项目上下文。它位于仓库根目录，已提交进版本控制、公开可见；不要把真实环境值写进本文件。
 
 ## 项目定位
 
@@ -118,6 +118,6 @@ echo y | cloudbase functions:deploy blog-bff --force
 
 ## Git 约定
 
-- 根目录 AGENTS.md 是本地协作说明，已加入 .gitignore，保持未跟踪状态。
+- 根目录 AGENTS.md 是项目协作说明，已加入版本控制、公开可见；其中不得出现真实环境值。
 - CLAUDE.md、.claude/、.superpowers/、docs/ 和真实 cloudbaserc.json 按现有忽略规则处理。
 - 修改前先查看 git status --short；只提交本次任务明确涉及的源文件，不要顺手清理或覆盖其他未提交改动。

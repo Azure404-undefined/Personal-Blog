@@ -4,7 +4,7 @@
 
 **在线演示**：
 
-- Vercel：`https://personal-blog-xxx.vercel.app`（TODO：部署后替换）
+- Vercel：`https://personal-blog-cjy.vercel.app`
 - 腾讯云：`https://<envId>.webapps.tcloudbase.com`（TODO：部署后替换）
 
 ## 架构
