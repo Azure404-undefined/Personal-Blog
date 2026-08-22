@@ -20,11 +20,11 @@ const props = withDefaults(
 
 const { y } = useScroll(window)
 
-// 视差缩放：滚动时封面放大 1→1.05
+// 视差缩放：滚动时封面放大 1→1.35
 const parallaxScale = computed(() => {
   if (props.mini) return 1
-  const scale = 1 + Math.min(y.value / 800, 1) * 0.05
-  return Math.min(scale, 1.05)
+  const scale = 1 + Math.min(y.value / 800, 1) * 1
+  return Math.min(scale, 1.35)
 })
 
 // 问候语透明度：滚动超过 100px 开始渐隐

@@ -1,89 +1,93 @@
-# Personal Blog
+# 个人博客（Personal Blog）
 
-A full-featured personal blog built with Vue 3 + TypeScript, powered by Tencent CloudBase (BFF cloud function + data models).
+基于 Vue 3 + TypeScript 的全功能个人博客，后端由腾讯 CloudBase 支撑（BFF 云函数 + 数据模型）。
 
-**Live demo**: https://your-blog-domain.example (TODO: replace with deployed URL)
+**在线演示**：
 
-## Architecture
+- Vercel：`https://personal-blog-xxx.vercel.app`（TODO：部署后替换）
+- 腾讯云：`https://<envId>.webapps.tcloudbase.com`（TODO：部署后替换）
+
+## 架构
 
 ```
-Browser (Vue3 SPA, hand-written axios)
-  │  REST + JWT (Authorization: Bearer)
+浏览器（Vue3 SPA，手写 axios 层）
+  │  REST + JWT（Authorization: Bearer）
   ▼
-CloudBase HTTP Gateway  (path: /blog-bff)
+CloudBase HTTP 网关  （路由 path: /blog-bff）
   ▼
-Cloud Function: blog-bff  (Node.js, @cloudbase/node-sdk)
-  │  auth proxy / ownerUid ownership checks / CORS
+云函数 blog-bff  （Node.js，@cloudbase/node-sdk）
+  │  登录代理 / ownerUid 所有权校验 / CORS
   ▼
-CloudBase Data Models: articles · comments
+CloudBase 数据模型：articles · comments
 ```
 
-- **BFF pattern**: the frontend only talks to the cloud function, never to data models directly. The function manages CORS (free-tier security-domain whitelist workaround) and enforces ownership (`ownerUid`) on every write.
-- **Auth**: login proxies to CloudBase Auth (`/auth/v1/signin`), JWT `sub` is used as uid. Dual-token refresh via `/auth/refresh`.
-- **Config**: the envId is injected via environment variables (`ENV_ID`, with cloud-runtime auto-detection as fallback), never hardcoded in code.
+- **BFF 模式**：前端只调云函数，不直连数据模型。函数自控 CORS（绕开免费版安全域名白名单限制），所有写操作手动校验 `ownerUid` 所有权。
+- **鉴权**：登录代理到 CloudBase Auth（`/auth/v1/signin`），JWT `sub` 字段作为 uid。双 token 刷新通过 `/auth/refresh`。
+- **配置**：envId 通过环境变量注入（`ENV_ID`，云端自动识别兜底），不在代码中硬编码。
 
-## Tech Stack
+## 技术栈
 
-| Layer | Stack |
+| 层 | 技术 |
 | --- | --- |
-| Frontend | Vue 3.5 · Vite 8 · TypeScript · Pinia · Vue Router · axios · Element Plus · markdown-it + DOMPurify · SCSS |
-| Backend (BFF) | Node.js · @cloudbase/node-sdk · CloudBase HTTP Gateway |
-| Tooling | ESLint + oxlint · Prettier · vue-tsc |
+| 前端 | Vue 3.5 · Vite 8 · TypeScript · Pinia · Vue Router · axios · Element Plus · markdown-it + DOMPurify · SCSS |
+| 后端（BFF） | Node.js · @cloudbase/node-sdk · CloudBase HTTP 网关 |
+| 工具链 | ESLint + oxlint · Prettier · vue-tsc |
 
-## Features
+## 功能
 
-- **Auth**: login modal / login page, JWT dual-token, 401 auto-refresh with retry queue (concurrent requests share a single refresh call)
-- **Articles**: Markdown editor with preview, cover upload & client-side compression, category / draft / published states, archive, personal article management
-- **Comments**: nested threads, @-reply, collapse
-- **Search**: ⌘K-style modal with debounced input and keyboard navigation
-- **Security**: DOMPurify-sanitized Markdown rendering, lazy-loaded images, login rate limiting (per-IP fail window)
-- **UX**: dark theme, responsive mobile layout, SEO meta per page
+- **鉴权**：登录弹窗 / 登录页、JWT 双 token、401 自动刷新 + 重试队列（并发请求共享单次刷新）
+- **文章**：Markdown 编辑器与预览、封面上传 + 客户端压缩、分类 / 草稿 / 发布状态、归档、个人文章管理
+- **评论**：嵌套回复、@提及、折叠
+- **搜索**：⌘K 风格弹窗，防抖输入 + 键盘导航
+- **安全**：DOMPurify 净化 Markdown 渲染、图片懒加载、登录限流（按 IP 失败窗口）
+- **体验**：暗色主题、响应式移动端布局、每页 SEO meta
 
-## Hand-written Core Modules
+## 手写核心模块
 
-- `personal-blog/src/services/request/` — axios instance: token injection, 401 refresh retry queue, `Unwrapped` type system that re-types axios methods to return bare response bodies
-- `personal-blog/src/router/` — route guards (`meta.requiresAuth`) and auth store integration
-- `personal-blog/src/stores/` — Pinia stores (auth token/refresh lifecycle, app-level UI state)
-- `personal-blog/src/types/api/` — global API type declarations
-- Components: `CommentSection`, `SearchModal`, `LoginModal`, `safeContent`, cover upload, pagination, etc.
+- `personal-blog/src/services/request/` — axios 实例：token 注入、401 刷新重试队列、`Unwrapped` 类型系统（重写 axios 方法返回类型为裸响应体）
+- `personal-blog/src/router/` — 路由守卫（`meta.requiresAuth`）+ auth store 联动
+- `personal-blog/src/stores/` — Pinia store（auth token/refresh 生命周期、应用级 UI 状态）
+- `personal-blog/src/types/api/` — 全局 API 类型声明
+- 组件：`CommentSection`、`SearchModal`、`LoginModal`、`safeContent`、`ContactLinks`、封面上传、分页等
 
-## Project Structure
+## 项目结构
 
 ```
-├── personal-blog/            # Vue3 + Vite frontend
+├── personal-blog/            # Vue3 + Vite 前端
 │   └── src/
-│       ├── services/         # axios instance + API functions (auth/articles/comments/upload)
-│       ├── stores/           # Pinia stores (auth, app UI state)
-│       ├── router/           # routes + auth guard
-│       ├── types/api/        # API type declarations
-│       ├── components/       # shared components
-│       ├── views/            # home, article-detail, write, my-articles, archive, about, categories, friends, login
-│       ├── utils/            # date/image/avatar helpers
-│       └── styles/           # design tokens (SCSS + CSS variables + mixins)
-└── cloudfunctions/blog-bff/  # BFF cloud function (Event type)
+│       ├── services/         # axios 实例 + API 函数（auth/articles/comments/upload）
+│       ├── stores/           # Pinia store（auth、应用 UI 状态）
+│       ├── router/           # 路由 + 鉴权守卫
+│       ├── types/api/        # API 类型声明
+│       ├── components/       # 共享组件
+│       ├── views/            # 首页、文章详情、写文章、我的文章、归档、关于、分类、友链、登录
+│       ├── utils/            # 日期/图片/头像工具
+│       └── styles/           # 设计体系（SCSS tokens + CSS 变量 + mixins）
+└── cloudfunctions/blog-bff/  # BFF 云函数（Event 类型）
     ├── index.js              # exports.main(event) → {statusCode, headers, body}
-    └── package.json          # depends on @cloudbase/node-sdk
+    ├── rate-limit.js         # 登录限流模块（按 IP 失败窗口）
+    └── package.json          # 依赖 @cloudbase/node-sdk
 ```
 
-## Getting Started
+## 快速开始
 
-### Frontend
+### 前端
 
 ```bash
 cd personal-blog
-cp .env.example .env          # fill in your CloudBase env values
+cp .env.example .env          # 填入你的 CloudBase 环境配置
 npm install
-npm run dev                   # Vite dev server on port 3000
+npm run dev                   # Vite dev server（端口 3000）
 ```
 
-### BFF (requires @cloudbase/cli and CloudBase env)
+### BFF（需要 @cloudbase/cli 与 CloudBase 环境）
 
 ```bash
-cp cloudbaserc.example.json cloudbaserc.json   # fill in your envId
-echo y | cloudbase functions:deploy blog-bff --force
+cp cloudbaserc.example.json cloudbaserc.json   # 填入你的 envId
+echo y | tcb fn deploy blog-bff --force
 ```
 
-Configure the HTTP Gateway route `/blog-bff` in the CloudBase console.
+在 CloudBase 控制台配置 HTTP 网关路由 `/blog-bff`。
 
 ## License
 

@@ -6,6 +6,7 @@ import { ElMessageBox, ElMessage } from 'element-plus'
 import HeroSection from '@/components/HeroSection.vue'
 import ArticleTimeline from '@/components/ArticleTimeline.vue'
 import { usePageMeta } from '@/utils/meta'
+import myArticles from '@/assets/imgs/ykaiavu-cat-8438334.jpg'
 
 defineOptions({ name: 'MyArticlesView' })
 
@@ -67,7 +68,7 @@ onMounted(fetchArticles)
 
 <template>
   <div class="my-page">
-    <HeroSection mini title="我的文章" />
+    <HeroSection mini :cover-image="myArticles" title="我的文章" />
 
     <!-- loading: 骨架屏 -->
     <div v-if="loading" class="skeleton-list">
