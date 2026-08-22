@@ -3,6 +3,11 @@ import { useAuthStore } from '@/stores/modules/auth'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
+  scrollBehavior(_to, _from, savedPosition) {
+    // 浏览器前进/后退时恢复原位置;普通导航回到页顶
+    if (savedPosition) return savedPosition
+    return { top: 0 }
+  },
   routes: [
     {
       path: '/',
