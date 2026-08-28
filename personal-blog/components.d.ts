@@ -34,5 +34,6 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     SafeContent: typeof import('./src/components/safeContent.vue')['default']
     TimelineEntry: typeof import('./src/components/TimelineEntry.vue')['default']
+    UploadProgress: typeof import('./src/components/UploadProgress.vue')['default']
   }
 }

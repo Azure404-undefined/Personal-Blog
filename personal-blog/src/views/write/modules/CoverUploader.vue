@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { PictureFilled, Delete } from '@element-plus/icons-vue'
 import { uploadImage } from '@/services/api/upload'
+import type { UploadStage } from '@/components/UploadProgress.vue'
 
 defineOptions({ name: 'CoverUploader' })
 
@@ -11,6 +12,7 @@ defineProps<{
 }>()
 const emit = defineEmits<{
   'update:modelValue': [value: string]
+  progress: [{ percent: number; stage: UploadStage } | null]
 }>()
 
 const uploading = ref(false)
@@ -29,8 +31,11 @@ const handleChange = async (e: Event) => {
   }
   uploading.value = true
   error.value = ''
+  emit('progress', { percent: -1, stage: 'compressing' })
   try {
-    const res = await uploadImage(file)
+    const res = await uploadImage(file, (p) => {
+      emit('progress', { percent: p, stage: p < 99 ? 'uploading' : 'processing' })
+    })
     emit('update:modelValue', res.url)
     ElMessage.success('封面上传成功')
   } catch (err: unknown) {
@@ -39,6 +44,7 @@ const handleChange = async (e: Event) => {
     ElMessage.error(msg)
   } finally {
     uploading.value = false
+    emit('progress', null)
   }
   ;(e.target as HTMLInputElement).value = ''
 }

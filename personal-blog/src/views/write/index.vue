@@ -13,6 +13,7 @@ import { useAuthStore } from '@/stores/modules/auth'
 import MarkdownIt from 'markdown-it'
 import HeroSection from '@/components/HeroSection.vue'
 import { usePageMeta } from '@/utils/meta'
+import type { UploadStage } from '@/components/UploadProgress.vue'
 import EditorToolbar from './modules/EditorToolbar.vue'
 import CoverUploader from './modules/CoverUploader.vue'
 import TocEditor from './modules/TocEditor.vue'
@@ -40,6 +41,9 @@ const fetchError = ref('')
 const saveError = ref('')
 const uploading = ref(false)
 const uploadError = ref('')
+type UploadProgressState = { percent: number; stage: UploadStage }
+const imgProgress = ref<UploadProgressState | null>(null)
+const coverProgress = ref<UploadProgressState | null>(null)
 
 const coverImageUrl = ref('')
 
@@ -209,8 +213,11 @@ const uploadAndInsert = async (file: File) => {
   }
   uploadError.value = ''
   uploading.value = true
+  imgProgress.value = { percent: -1, stage: 'compressing' }
   try {
-    const res = await uploadImage(file)
+    const res = await uploadImage(file, (p) => {
+      imgProgress.value = { percent: p, stage: p < 99 ? 'uploading' : 'processing' }
+    })
     const escaped = file.name.replace(/]/g, '\\]')
     const md = `![${escaped}](${res.url})`
     insertText(md)
@@ -221,6 +228,7 @@ const uploadAndInsert = async (file: File) => {
     ElMessage.error(msg)
   } finally {
     uploading.value = false
+    imgProgress.value = null
   }
 }
 
@@ -274,7 +282,12 @@ const handlePaste = (e: ClipboardEvent) => {
         <!-- 编辑器 -->
         <el-col :xs="24" :md="15">
           <div class="editor-pane">
-            <EditorToolbar :uploading="uploading" @command="onToolCommand" @insert-image="triggerFilePicker" />
+            <EditorToolbar
+              :uploading="uploading"
+              :progress="imgProgress"
+              @command="onToolCommand"
+              @insert-image="triggerFilePicker"
+            />
 
             <el-input
               ref="editorRef"
@@ -306,8 +319,18 @@ const handlePaste = (e: ClipboardEvent) => {
                 </div>
 
                 <div class="sidebar-field">
-                  <label class="sidebar-label">封面</label>
-                  <CoverUploader v-model="coverImageUrl" />
+                  <div class="sidebar-label-row">
+                    <label class="sidebar-label">封面</label>
+                    <UploadProgress
+                      v-if="coverProgress"
+                      :percent="coverProgress.percent"
+                      :stage="coverProgress.stage"
+                    />
+                  </div>
+                  <CoverUploader
+                    v-model="coverImageUrl"
+                    @progress="coverProgress = $event"
+                  />
                 </div>
 
                 <div class="sidebar-field">
@@ -444,6 +467,12 @@ const handlePaste = (e: ClipboardEvent) => {
   font-size: $font-size-small;
   font-weight: 600;
   color: var(--color-text-secondary);
+}
+
+.sidebar-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .sidebar-actions {

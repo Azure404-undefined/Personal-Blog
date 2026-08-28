@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { Picture } from '@element-plus/icons-vue'
+import UploadProgress, { type UploadStage } from '@/components/UploadProgress.vue'
 
 defineOptions({ name: 'EditorToolbar' })
 
 defineProps<{
   uploading?: boolean
+  progress?: { percent: number; stage: UploadStage } | null
 }>()
 
 const emit = defineEmits<{
@@ -45,6 +47,12 @@ const emit = defineEmits<{
     >
       <el-icon :size="14"><Picture /></el-icon>
     </button>
+    <UploadProgress
+      v-if="progress"
+      class="tool-progress"
+      :percent="progress.percent"
+      :stage="progress.stage"
+    />
   </div>
 </template>
 
@@ -96,5 +104,10 @@ const emit = defineEmits<{
   height: 16px;
   background: var(--color-border);
   margin: 0 4px;
+}
+
+.tool-progress {
+  margin-left: auto;
+  padding-right: $spacing-xs;
 }
 </style>
