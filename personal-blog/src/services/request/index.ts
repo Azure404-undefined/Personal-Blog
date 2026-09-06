@@ -1,6 +1,13 @@
 import axios from 'axios'
 import { useAuthStore } from '@/stores/modules/auth'
 import { BFF } from '@/utils/env'
+import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
+
+NProgress.configure({
+  showSpinner: false,
+  // trickleSpeed: 200,
+})
 
 let isRefreshingToken: boolean = false // 标记是否正在刷新 token
 let refreshPromise: Promise<void> | null = null // 存储刷新 token 的 Promise
@@ -16,6 +23,7 @@ const request = axios.create({
 request.interceptors.request.use(
   (config) => {
     // 在发送请求之前做些什么
+    NProgress.start()
     const authStore = useAuthStore()
     if (authStore.isLogin) {
       config.headers.Authorization = `Bearer ${authStore.token}`
@@ -31,6 +39,7 @@ request.interceptors.request.use(
 request.interceptors.response.use(
   (response) => {
     // 对响应数据做点什么
+    NProgress.done()
     return response.data
   },
   async (error) => {
@@ -59,6 +68,7 @@ request.interceptors.response.use(
       // 处理请求错误
       return Promise.reject(new Error('请求错误，请检查请求参数。'))
     }
+    NProgress.done()
     return Promise.reject(error)
   },
 )
