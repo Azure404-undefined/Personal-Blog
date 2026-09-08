@@ -12,12 +12,13 @@ const close = () => {
   appStore.closeLoginModal()
 }
 
-// 弹窗打开时禁止 body 滚动
+// 弹窗打开时禁止 body 滚动;immediate 保证懒加载首开(挂载时 flag 已为 true)也能锁滚动
 watch(
   () => appStore.showLoginModal,
   (val) => {
     document.body.style.overflow = val ? 'hidden' : ''
   },
+  { immediate: true },
 )
 
 const onLoginSuccess = () => {

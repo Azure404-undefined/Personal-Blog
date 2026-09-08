@@ -64,6 +64,79 @@ const getClientIp = (headers) => {
 // 登录失败限流（实例内内存实现，不跨实例）
 const loginLimiter = createLoginLimiter();
 
+// ---- 图片 URL 批量换签 ----
+// 库里存的是 BFF 代理路径(/blog-bff/files/<fileID>),响应前批量换成 CDN 签名直链:
+// 图片加载完全不过云函数;签名约 12 天有效,函数内缓存复用同一签名 URL,浏览器/CDN 可命中缓存
+const FILE_URL_TTL_MS = 12 * 60 * 60 * 1000; // 12h,远小于签名有效期
+const fileUrlCache = new Map(); // fileID -> { url, expiresAt }(实例内缓存,不跨实例)
+const BFF_URL_RE = () => /https?:\/\/[^"'()\s]*\/blog-bff\/files\/([^"'()\s]+)/g;
+
+/** 从 BFF 代理 URL 提取 fileID(URL 中已 encodeURIComponent);非 BFF 形态(外部图/已直链)返回 null */
+const fileIdFromUrl = (url) => {
+  if (!url) return null;
+  const seg = url.split('/files/');
+  if (seg.length < 2) return null;
+  try { return decodeURIComponent(seg[1]); } catch (_) { return null; }
+};
+
+/** 批量换取临时 CDN URL(fileID -> tempFileURL),优先走缓存,未命中按 50 个/批调 API */
+const getTempUrls = async (fileIDs) => {
+  const now = Date.now();
+  const map = new Map();
+  const miss = [];
+  for (const id of new Set(fileIDs)) {
+    const hit = fileUrlCache.get(id);
+    if (hit && hit.expiresAt > now) map.set(id, hit.url);
+    else miss.push(id);
+  }
+  for (let i = 0; i < miss.length; i += 50) {
+    const batch = miss.slice(i, i + 50);
+    const { fileList } = await app.getTempFileURL({ fileList: batch });
+    (fileList || []).forEach((f, idx) => {
+      if (!f || !f.tempFileURL) return; // 换签失败:保持原 /files/ URL,302 兜底仍可用
+      const id = f.fileID || batch[idx];
+      fileUrlCache.set(id, { url: f.tempFileURL, expiresAt: now + FILE_URL_TTL_MS });
+      map.set(id, f.tempFileURL);
+    });
+  }
+  if (fileUrlCache.size > 500) {
+    for (const [id, v] of fileUrlCache) {
+      if (v.expiresAt <= now) fileUrlCache.delete(id);
+    }
+  }
+  return map;
+};
+
+/** 批量把 records 里 coverImage/content 的 BFF 代理 URL 换成 CDN 签名直链(content 默认不换,列表页不渲染正文图) */
+const swapRecordsUrls = async (records, { content = false } = {}) => {
+  const ids = [];
+  for (const r of records || []) {
+    const coverId = fileIdFromUrl(r.coverImage);
+    if (coverId) ids.push(coverId);
+    if (content && typeof r.content === 'string') {
+      for (const m of r.content.matchAll(BFF_URL_RE())) {
+        try { ids.push(decodeURIComponent(m[1])); } catch (_) { /* 截断 URL 跳过 */ }
+      }
+    }
+  }
+  if (!ids.length) return;
+  const map = await getTempUrls(ids);
+  if (!map.size) return;
+  for (const r of records || []) {
+    if (r.coverImage) {
+      const url = map.get(fileIdFromUrl(r.coverImage));
+      if (url) r.coverImage = url;
+    }
+    if (content && typeof r.content === 'string') {
+      r.content = r.content.replace(BFF_URL_RE(), (full, enc) => {
+        let id;
+        try { id = decodeURIComponent(enc); } catch (_) { return full; }
+        return map.get(id) || full;
+      });
+    }
+  }
+};
+
 /** 取单条记录(models.get 语法不稳定,改用已验证的 list) */
 const modelGet = async (id) => {
   const { data } = await models.articles.list({
@@ -247,6 +320,8 @@ exports.main = async (event) => {
         const start = (resultPage - 1) * pageSize;
         records = filtered.slice(start, start + pageSize);
       }
+      // 封面批量换签 → 前端直连 CDN,不经过云函数
+      await swapRecordsUrls(records);
       return reply(200, { records, total, page: resultPage, pageSize });
     }
 
@@ -259,6 +334,8 @@ exports.main = async (event) => {
         const uid = getUid(headers);
         if (!uid || record.ownerUid !== uid) return reply(404, { error: 'not found' });
       }
+      // 封面 + 正文图批量换签 → 前端直连 CDN,不经过云函数
+      await swapRecordsUrls([record], { content: true });
       return reply(200, record);
     }
 
@@ -475,8 +552,9 @@ exports.main = async (event) => {
     if (method === 'GET' && path.startsWith('/files/')) {
       const encoded = path.slice('/files/'.length);
       const fileID = decodeURIComponent(encoded);
-      const { fileList } = await app.getTempFileURL({ fileList: [fileID] });
-      const target = fileList && fileList[0] && fileList[0].tempFileURL;
+      // 走批量换签的实例内缓存:同图重复访问不再实时调 API
+      const map = await getTempUrls([fileID]);
+      const target = map.get(fileID);
       if (!target) return reply(404, { error: 'file not found' });
       return {
         statusCode: 302,

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue'
+import { ref, watch, nextTick, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAppStore } from '@/stores/modules/app'
 import { getArticles } from '@/services/api/articles'
@@ -71,7 +71,8 @@ const onKeydown = (e: KeyboardEvent) => {
   }
 }
 
-// 打开时自动 focus + 全局 Ctrl+K
+// 打开时自动 focus;immediate 保证懒加载首开(挂载时 flag 已为 true)也能聚焦
+// ⌘K 全局监听已上移到 AppLayout(常驻组件),此处不再注册
 watch(
   () => appStore.showSearchModal,
   (val) => {
@@ -81,18 +82,10 @@ watch(
       results.value = []
     }
   },
+  { immediate: true },
 )
 
-const onGlobalKeydown = (e: KeyboardEvent) => {
-  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-    e.preventDefault()
-    appStore.openSearchModal()
-  }
-}
-
-onMounted(() => window.addEventListener('keydown', onGlobalKeydown))
 onUnmounted(() => {
-  window.removeEventListener('keydown', onGlobalKeydown)
   if (debounceTimer) clearTimeout(debounceTimer)
 })
 
@@ -105,7 +98,6 @@ const highlight = (text: string, q: string) => {
   const regex = new RegExp(`(${escaped})`, 'gi')
   return sanitizeHtml(text.replace(regex, '<mark>$1</mark>'))
 }
-
 </script>
 
 <template>
@@ -125,7 +117,9 @@ const highlight = (text: string, q: string) => {
               @input="debouncedSearch"
               @keydown="onKeydown"
             />
-            <button class="search-close" @click="close" aria-label="关闭"><el-icon :size="14"><Close /></el-icon></button>
+            <button class="search-close" @click="close" aria-label="关闭">
+              <el-icon :size="14"><Close /></el-icon>
+            </button>
           </div>
 
           <!-- 结果列表 -->
@@ -139,17 +133,12 @@ const highlight = (text: string, q: string) => {
               @mouseenter="activeIndex = i"
             >
               <div class="search-item-title" v-html="highlight(item.title, query)" />
-              <div
-                class="search-item-excerpt"
-                v-html="highlight(excerpt(item.content), query)"
-              />
+              <div class="search-item-excerpt" v-html="highlight(excerpt(item.content), query)" />
             </div>
           </div>
 
           <!-- 空结果 -->
-          <div v-else-if="query && !loading" class="search-empty">
-            未找到相关文章
-          </div>
+          <div v-else-if="query && !loading" class="search-empty">未找到相关文章</div>
 
           <!-- Loading -->
           <div v-else-if="loading" class="search-loading">
@@ -157,9 +146,7 @@ const highlight = (text: string, q: string) => {
           </div>
 
           <!-- 空闲提示 -->
-          <div v-else class="search-hint">
-            输入关键词搜索文章标题和内容
-          </div>
+          <div v-else class="search-hint">输入关键词搜索文章标题和内容</div>
 
           <!-- 底部提示 -->
           <div v-if="results.length" class="search-footer">
